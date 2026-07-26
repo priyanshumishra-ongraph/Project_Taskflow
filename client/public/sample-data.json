@@ -6,6 +6,7 @@
       "email": "john.doe@example.com",
       "password": "password123",
       "avatar_url": "https://example.com/avatar/johndoe.png",
+      "role": "Admin",
       "preferences": {
         "theme": "dark",
         "email_notifications": true
@@ -17,6 +18,7 @@
       "email": "alex.s@example.com",
       "password": "password123",
       "avatar_url": "https://example.com/avatar/alexs.png",
+      "role": "Admin",
       "preferences": {
         "theme": "light",
         "email_notifications": false
@@ -28,6 +30,7 @@
       "email": "sarah.c@example.com",
       "password": "password123",
       "avatar_url": "https://example.com/avatar/sarahc.png",
+      "role": "Member",
       "preferences": {
         "theme": "system",
         "email_notifications": true
@@ -39,6 +42,7 @@
       "email": "david.k@example.com",
       "password": "password123",
       "avatar_url": "https://example.com/avatar/davidk.png",
+      "role": "Member",
       "preferences": {
         "theme": "dark",
         "email_notifications": false

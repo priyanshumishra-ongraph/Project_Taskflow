@@ -1,0 +1,41 @@
+.app-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 16px;
+}
+h1 {
+  margin: 0;
+  color: #1e293b;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+}
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn:hover {
+  opacity: 0.9;
+}
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+}
+.btn-secondary {
+  background-color: #e2e8f0;
+  color: #475569;
+}

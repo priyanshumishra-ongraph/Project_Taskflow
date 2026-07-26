@@ -1,0 +1,45 @@
+<div class="task-card">
+  <div class="card-title-row">
+    <h3>{{ task.title }}</h3>
+    <div class="header-actions">
+      <button class="icon-btn edit" (click)="onEdit()" title="Edit Task">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button class="icon-btn delete" (click)="onDelete()" title="Delete Task">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+      </button>
+      <span class="priority {{ task.priority.toLowerCase() }}">{{ task.priority }}</span>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">{{ task.progress_label }}</span>
+      <span class="progress-stats">{{ task.progress_stats }}</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" [style.width]="task.progress_bar_fill + '%'"></div>
+    </div>
+  </div>
+
+  <div class="due-row">
+    <div class="due-date">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+      <span>{{ task.due_date | date:'MMM d' }}</span>
+    </div>
+    <div class="avatars">
+      @for (initials of task.assignee_initials_list; track initials) {
+        <div class="avatar">{{ initials }}</div>
+      }
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="card-footer">
+    <span class="created-date">{{ task.created_at || 'N/A' }}</span>
+    <div class="assignee">
+      <span class="assignee-name">{{ task.assignee_names?.join(', ') || 'Unknown User' }}</span>
+    </div>
+  </div>
+</div>
