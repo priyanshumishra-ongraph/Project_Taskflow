@@ -1,0 +1,209 @@
+{
+  "users": [
+    {
+      "id": "usr_1",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "password": "password123",
+      "avatar_url": "https://example.com/avatar/johndoe.png",
+      "preferences": {
+        "theme": "dark",
+        "email_notifications": true
+      }
+    },
+    {
+      "id": "usr_2",
+      "name": "Alex S",
+      "email": "alex.s@example.com",
+      "password": "password123",
+      "avatar_url": "https://example.com/avatar/alexs.png",
+      "preferences": {
+        "theme": "light",
+        "email_notifications": false
+      }
+    },
+    {
+      "id": "usr_3",
+      "name": "Sarah Connor",
+      "email": "sarah.c@example.com",
+      "password": "password123",
+      "avatar_url": "https://example.com/avatar/sarahc.png",
+      "preferences": {
+        "theme": "system",
+        "email_notifications": true
+      }
+    },
+    {
+      "id": "usr_4",
+      "name": "David Kim",
+      "email": "david.k@example.com",
+      "password": "password123",
+      "avatar_url": "https://example.com/avatar/davidk.png",
+      "preferences": {
+        "theme": "dark",
+        "email_notifications": false
+      }
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj_1",
+      "name": "Alpha Re-design",
+      "color_code": "#6C63FF",
+      "owner_id": "usr_1"
+    },
+    {
+      "id": "proj_2",
+      "name": "Beta Launch",
+      "color_code": "#00C896",
+      "owner_id": "usr_2"
+    },
+    {
+      "id": "proj_3",
+      "name": "Marketing Q4",
+      "color_code": "#FF6B6B",
+      "owner_id": "usr_3"
+    },
+    {
+      "id": "proj_4",
+      "name": "Personal Errands",
+      "color_code": "#FFA94D",
+      "owner_id": "usr_1"
+    }
+  ],
+  "tags": [
+    { "id": "tag_1", "name": "bug", "color_code": "#FF6B6B" },
+    { "id": "tag_2", "name": "feature", "color_code": "#6C63FF" },
+    { "id": "tag_3", "name": "design", "color_code": "#00C896" },
+    { "id": "tag_4", "name": "marketing", "color_code": "#FFA94D" },
+    { "id": "tag_5", "name": "urgent", "color_code": "#E03131" }
+  ],
+  "tasks": [
+    {
+      "id": "task_1",
+      "title": "Fix login crash",
+      "description": "App crashes when entering special characters in email field.",
+      "status": "To Do",
+      "priority": "Urgent",
+      "due_date": "2026-10-26T00:00:00Z",
+      "project_id": "proj_1",
+      "assignee_id": "usr_1",
+      "subtasks": [
+        { "id": "sub_1", "title": "Reproduce bug in dev environment", "is_completed": false }
+      ],
+      "tag_ids": ["tag_1", "tag_5"],
+      "comments": [
+        { "id": "cmt_1", "user_id": "usr_2", "content": "I noticed this yesterday on iOS as well.", "created_at": "2026-10-24T09:00:00Z" }
+      ],
+      "time_logs": []
+    },
+    {
+      "id": "task_2",
+      "title": "Add dark mode toggle to settings",
+      "description": "We need a toggle in the settings menu that switches the theme preference and saves it to local storage.",
+      "status": "In Progress",
+      "priority": "High",
+      "due_date": "2026-10-27T17:00:00Z",
+      "project_id": "proj_1",
+      "assignee_id": "usr_2",
+      "subtasks": [
+        { "id": "sub_2", "title": "Create CSS variables for dark theme", "is_completed": true },
+        { "id": "sub_3", "title": "Add toggle UI component", "is_completed": false },
+        { "id": "sub_4", "title": "Save preference to local storage", "is_completed": false }
+      ],
+      "tag_ids": ["tag_2", "tag_3"],
+      "comments": [
+        { "id": "cmt_2", "user_id": "usr_2", "content": "Working on the CSS variables now.", "created_at": "2026-10-25T14:30:00Z" }
+      ],
+      "time_logs": [
+        { "id": "log_1", "user_id": "usr_2", "duration_minutes": 120, "created_at": "2026-10-25T16:30:00Z" }
+      ]
+    },
+    {
+      "id": "task_3",
+      "title": "Logo update",
+      "description": "Replace the old raster logo with the new SVG version in the navbar.",
+      "status": "Completed",
+      "priority": "Low",
+      "due_date": "2026-10-20T12:00:00Z",
+      "project_id": "proj_1",
+      "assignee_id": "usr_1",
+      "subtasks": [],
+      "tag_ids": ["tag_3"],
+      "comments": [],
+      "time_logs": [
+        { "id": "log_2", "user_id": "usr_1", "duration_minutes": 45, "created_at": "2026-10-19T10:00:00Z" }
+      ]
+    },
+    {
+      "id": "task_4",
+      "title": "Write press release",
+      "description": "Draft the initial press release for the Beta Launch next month.",
+      "status": "To Do",
+      "priority": "Medium",
+      "due_date": "2026-11-05T09:00:00Z",
+      "project_id": "proj_3",
+      "assignee_id": "usr_3",
+      "subtasks": [
+        { "id": "sub_5", "title": "Draft content", "is_completed": false },
+        { "id": "sub_6", "title": "Get approval from legal", "is_completed": false }
+      ],
+      "tag_ids": ["tag_4"],
+      "comments": [],
+      "time_logs": []
+    },
+    {
+      "id": "task_5",
+      "title": "Setup CI/CD Pipeline",
+      "description": "Configure GitHub actions for automated testing and deployment.",
+      "status": "In Review",
+      "priority": "Urgent",
+      "due_date": "2026-10-24T18:00:00Z",
+      "project_id": "proj_2",
+      "assignee_id": "usr_4",
+      "subtasks": [
+        { "id": "sub_7", "title": "Configure linting step", "is_completed": true },
+        { "id": "sub_8", "title": "Configure unit tests", "is_completed": true },
+        { "id": "sub_9", "title": "Configure auto-deploy to staging", "is_completed": true }
+      ],
+      "tag_ids": ["tag_2"],
+      "comments": [
+        { "id": "cmt_3", "user_id": "usr_4", "content": "Pipeline is green, ready for review.", "created_at": "2026-10-24T17:45:00Z" },
+        { "id": "cmt_4", "user_id": "usr_1", "content": "Looks good, just need to double check the secret keys.", "created_at": "2026-10-24T18:10:00Z" }
+      ],
+      "time_logs": [
+        { "id": "log_3", "user_id": "usr_4", "duration_minutes": 240, "created_at": "2026-10-24T17:40:00Z" }
+      ]
+    },
+    {
+      "id": "task_6",
+      "title": "Buy groceries",
+      "description": "Milk, eggs, bread, and coffee.",
+      "status": "To Do",
+      "priority": "Low",
+      "due_date": "2026-10-27T10:00:00Z",
+      "project_id": "proj_4",
+      "assignee_id": "usr_1",
+      "subtasks": [],
+      "tag_ids": [],
+      "comments": [],
+      "time_logs": []
+    },
+    {
+      "id": "task_7",
+      "title": "Review Q3 Analytics",
+      "description": "Pull the Google Analytics report and summarize key growth metrics.",
+      "status": "Completed",
+      "priority": "High",
+      "due_date": "2026-10-15T00:00:00Z",
+      "project_id": "proj_3",
+      "assignee_id": "usr_3",
+      "subtasks": [],
+      "tag_ids": ["tag_4"],
+      "comments": [],
+      "time_logs": [
+        { "id": "log_4", "user_id": "usr_3", "duration_minutes": 180, "created_at": "2026-10-14T15:00:00Z" }
+      ]
+    }
+  ]
+}
