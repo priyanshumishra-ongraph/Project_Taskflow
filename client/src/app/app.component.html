@@ -1,14 +1,13 @@
+<header class="nav-shell">
+  <a routerLink="/" class="nav-brand">
+    <h1>TaskFlow</h1>
+  </a>
+  <nav>
+    <a routerLink="/board" routerLinkActive="active">Board</a>
+    <a routerLink="/login" routerLinkActive="active">Login</a>
+  </nav>
+</header>
+
 <main class="app-container">
-  <header>
-    <h1>{{ title }}</h1>
-    <div class="actions">
-      <button (click)="resetTasks()" class="btn btn-primary">Load Tasks</button>
-      <button (click)="clearTasks()" class="btn btn-secondary">Clear</button>
-    </div>
-  </header>
-  
-  <section class="content">
-    <app-task-list></app-task-list>
-  </section>
+  <router-outlet></router-outlet>
 </main>
-<router-outlet></router-outlet>
