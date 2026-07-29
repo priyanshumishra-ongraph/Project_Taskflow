@@ -1,0 +1,103 @@
+<div class="signup-container">
+  <div class="signup-card">
+    <h2>Create an Account</h2>
+    <p class="subtitle">Join TaskFlow today.</p>
+    
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Username Field -->
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input 
+          id="username" 
+          type="text" 
+          formControlName="username" 
+          [class.is-invalid]="isFieldInvalid('username')"
+          placeholder="e.g. angular_ninja"
+        >
+        @if (isFieldInvalid('username')) {
+          <div class="error-msg">
+            @if (signupForm.get('username')?.errors?.['required']) { <span>Username is required.</span> }
+            @if (signupForm.get('username')?.errors?.['minlength']) { <span>Must be at least 3 characters.</span> }
+          </div>
+        }
+      </div>
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          [class.is-invalid]="isFieldInvalid('email')"
+          placeholder="you@example.com"
+        >
+        @if (isFieldInvalid('email')) {
+          <div class="error-msg">
+            @if (signupForm.get('email')?.errors?.['required']) { <span>Email is required.</span> }
+            @if (signupForm.get('email')?.errors?.['email']) { <span>Please enter a valid email.</span> }
+          </div>
+        }
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          id="password" 
+          type="password" 
+          formControlName="password" 
+          [class.is-invalid]="isFieldInvalid('password')"
+          placeholder="Minimum 12 characters"
+        >
+        
+        <!-- Live Password Checklist -->
+        <div class="password-checklist">
+          <div class="check-item" [class.met]="hasMinLength()">
+            <span class="icon">{{ hasMinLength() ? '✓' : '○' }}</span> At least 12 characters
+          </div>
+          <div class="check-item" [class.met]="hasUppercase()">
+            <span class="icon">{{ hasUppercase() ? '✓' : '○' }}</span> At least 1 uppercase letter (A-Z)
+          </div>
+          <div class="check-item" [class.met]="hasLowercase()">
+            <span class="icon">{{ hasLowercase() ? '✓' : '○' }}</span> At least 1 lowercase letter (a-z)
+          </div>
+          <div class="check-item" [class.met]="hasNumber()">
+            <span class="icon">{{ hasNumber() ? '✓' : '○' }}</span> At least 1 number (0-9)
+          </div>
+          <div class="check-item" [class.met]="hasSpecialChar()">
+            <span class="icon">{{ hasSpecialChar() ? '✓' : '○' }}</span> At least 1 special character (!&#64;#$%^&*)
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirm Password Field -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <input 
+          id="confirmPassword" 
+          type="password" 
+          formControlName="confirmPassword" 
+          [class.is-invalid]="signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched"
+          placeholder="Confirm your password"
+        >
+        @if (signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched) {
+          <div class="error-msg">
+            <span>Passwords do not match!</span>
+          </div>
+        }
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="signupForm.invalid">
+        Sign Up Now
+      </button>
+      
+      @if (submittedSuccessfully) {
+        <div class="success-msg">
+          Account created successfully! Welcome to the team.
+        </div>
+      }
+    </form>
+  </div>
+</div>

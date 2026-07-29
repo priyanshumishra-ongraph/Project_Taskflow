@@ -32,7 +32,8 @@
 
 .nav-shell nav {
   display: flex;
-  gap: 24px;
+  gap: 16px;
+  align-items: center;
 }
 
 .nav-shell nav a {
@@ -45,13 +46,27 @@
   transition: all 0.2s ease-in-out;
 }
 
-.nav-shell nav a:hover {
+.nav-shell nav a:hover:not(.btn-signup) {
   color: white;
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.nav-shell nav a.active {
+.nav-shell nav a.active:not(.btn-signup) {
   color: white;
   background-color: rgba(255, 255, 255, 0.2);
   font-weight: 600;
+}
+
+.nav-shell nav a.btn-signup {
+  background-color: white;
+  color: #2563eb;
+  font-weight: 600;
+  padding: 8px 16px;
+  margin-left: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.nav-shell nav a.btn-signup:hover {
+  background-color: #f8fafc;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }

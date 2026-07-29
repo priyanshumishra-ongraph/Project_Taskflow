@@ -7,13 +7,20 @@ declare const beforeEach: any;
 declare const it: any;
 declare const expect: any;
 
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+
 describe('TaskListComponent', () => {
   let component: TaskListComponent;
   let fixture: ComponentFixture<TaskListComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TaskListComponent]
+      imports: [TaskListComponent],
+      providers: [
+        provideHttpClient(),
+        provideRouter([])
+      ]
     })
     .compileComponents();
 

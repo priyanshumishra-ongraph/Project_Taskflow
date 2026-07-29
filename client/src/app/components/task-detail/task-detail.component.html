@@ -1,1 +1,44 @@
-<p>task-detail works!</p>
+<div class="form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>{{ isEditMode ? 'Edit Task' : 'Create New Task' }}</h2>
+    </div>
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="task-form">
+      
+      <div class="form-group">
+        <label for="title">Task Title</label>
+        <input type="text" id="title" formControlName="title" placeholder="E.g. Update user documentation"
+               [class.is-invalid]="taskForm.get('title')?.touched && taskForm.get('title')?.invalid">
+        <div class="error-message" *ngIf="taskForm.get('title')?.touched && taskForm.get('title')?.invalid">
+          <small *ngIf="taskForm.get('title')?.errors?.['required']">Title is required.</small>
+          <small *ngIf="taskForm.get('title')?.errors?.['minlength']">Title must be at least 3 characters long.</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" formControlName="status"
+                [class.is-invalid]="taskForm.get('status')?.touched && taskForm.get('status')?.invalid">
+          <option *ngFor="let opt of statusOptions" [value]="opt">{{ opt }}</option>
+        </select>
+        <div class="error-message" *ngIf="taskForm.get('status')?.touched && taskForm.get('status')?.invalid">
+          <small *ngIf="taskForm.get('status')?.errors?.['required']">Status is required.</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="due_date">Due Date</label>
+        <input type="date" id="due_date" formControlName="due_date"
+               [class.is-invalid]="taskForm.get('due_date')?.touched && taskForm.get('due_date')?.invalid">
+        <div class="error-message" *ngIf="taskForm.get('due_date')?.touched && taskForm.get('due_date')?.invalid">
+          <small *ngIf="taskForm.get('due_date')?.errors?.['required']">Due date is required.</small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn btn-primary">{{ isEditMode ? 'Save Changes' : 'Create Task' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
