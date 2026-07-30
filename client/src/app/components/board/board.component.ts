@@ -18,7 +18,7 @@ export class BoardComponent implements OnInit {
   }
 
   clearTasks() {
-    this.taskService.tasks.set([]);
+    this.taskService.clearTasks();
   }
 
   resetTasks() {

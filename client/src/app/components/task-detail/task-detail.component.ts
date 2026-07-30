@@ -34,25 +34,26 @@ export class TaskDetailComponent implements OnInit {
     
     if (this.taskId && this.taskId !== 'new') {
       this.isEditMode = true;
-      const tasks = this.taskService.tasks();
-      const task = tasks.find(t => t.id === this.taskId);
-      
-      if (task) {
-        // format date for input type="date"
-        let formattedDate = '';
-        if (task.due_date) {
-          const d = new Date(task.due_date);
-          if (!isNaN(d.getTime())) {
-            formattedDate = d.toISOString().split('T')[0];
-          }
-        }
+      this.taskService.tasks$.subscribe(tasks => {
+        const task = tasks.find(t => t.id === this.taskId);
         
-        this.taskForm.patchValue({
-          title: task.title,
-          status: task.status,
-          due_date: formattedDate
-        });
-      }
+        if (task) {
+          // format date for input type="date"
+          let formattedDate = '';
+          if (task.due_date) {
+            const d = new Date(task.due_date);
+            if (!isNaN(d.getTime())) {
+              formattedDate = d.toISOString().split('T')[0];
+            }
+          }
+          
+          this.taskForm.patchValue({
+            title: task.title,
+            status: task.status,
+            due_date: formattedDate
+          });
+        }
+      });
     }
   }
 

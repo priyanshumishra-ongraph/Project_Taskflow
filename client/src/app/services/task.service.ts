@@ -1,62 +1,70 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Task } from '../models/task.model';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
   private http = inject(HttpClient);
+  private apiUrl = 'http://localhost:3000/tasks';
   
-  // The central signal for tasks
-  public tasks = signal<Task[]>([]);
+  private tasksSubject = new BehaviorSubject<Task[]>([]);
+  public tasks$: Observable<Task[]> = this.tasksSubject.asObservable();
+  
   public users = signal<any[]>([]);
 
   constructor() { }
 
   loadTasks() {
-    this.http.get<any>('sample-data.json').subscribe({
-      next: (data) => {
-        const users = data.users || [];
+    this.http.get<any>('http://localhost:3000/users').subscribe({
+      next: (users) => {
         this.users.set(users);
-        const tasksData = data.tasks || [];
-        
-        const parsedTasks = tasksData.map((task: any) => {
-          let assignee_ids = task.assignee_ids || [];
-          if (assignee_ids.length === 0 && task.assignee_id) {
-            assignee_ids = [task.assignee_id];
-          }
-          
-          let assignee_names: string[] = [];
-          let assignee_initials_list: string[] = [];
-          
-          for (const id of assignee_ids) {
-            const user = users.find((u: any) => u.id === id);
-            if (user) {
-              assignee_names.push(user.name);
-              assignee_initials_list.push(user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase());
-            }
-          }
+        this.http.get<Task[]>(this.apiUrl).subscribe({
+          next: (tasksData) => {
+            const parsedTasks = tasksData.map((task: any) => {
+              let assignee_ids = task.assignee_ids || [];
+              if (assignee_ids.length === 0 && task.assignee_id) {
+                assignee_ids = [task.assignee_id];
+              }
+              
+              let assignee_names: string[] = [];
+              let assignee_initials_list: string[] = [];
+              
+              for (const id of assignee_ids) {
+                const user = users.find((u: any) => u.id === id);
+                if (user) {
+                  assignee_names.push(user.name);
+                  assignee_initials_list.push(user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase());
+                }
+              }
 
-          return {
-            ...task,
-            assignee_ids,
-            assignee_names,
-            assignee_initials_list,
-            created_at: "Jul 25, 2026"
-          };
+              return {
+                ...task,
+                assignee_ids,
+                assignee_names,
+                assignee_initials_list,
+                created_at: task.created_at || "Jul 25, 2026"
+              };
+            });
+            this.tasksSubject.next(parsedTasks);
+          },
+          error: (err) => console.error("Failed to load tasks:", err)
         });
-        
-        this.tasks.set(parsedTasks);
       },
       error: (err) => {
-        console.error("Failed to load sample data:", err);
+        console.error("Failed to load users:", err);
       }
     });
   }
 
+  clearTasks() {
+    this.tasksSubject.next([]);
+  }
+
   addTask(newTask: Partial<Task>) {
-    const task: Task = {
+    const task: Partial<Task> = {
       id: 'task_' + Math.random().toString(36).substr(2, 9),
       title: newTask.title || 'Untitled Task',
       description: newTask.description || '',
@@ -74,16 +82,14 @@ export class TaskService {
       ...newTask
     };
     
-    this.tasks.update(tasks => [task, ...tasks]);
+    this.http.post<Task>(this.apiUrl, task).subscribe(() => this.loadTasks());
   }
 
   updateTask(id: string, updates: Partial<Task>) {
-    this.tasks.update(tasks => 
-      tasks.map(t => t.id === id ? { ...t, ...updates } : t)
-    );
+    this.http.patch<Task>(`${this.apiUrl}/${id}`, updates).subscribe(() => this.loadTasks());
   }
 
   deleteTask(id: string) {
-    this.tasks.update(tasks => tasks.filter(t => t.id !== id));
+    this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe(() => this.loadTasks());
   }
 }

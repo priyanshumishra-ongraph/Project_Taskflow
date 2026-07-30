@@ -1,5 +1,5 @@
 <div class="task-list">
-  @for (task of taskService.tasks(); track task.id) {
+  @for (task of tasks$ | async; track task.id) {
     <app-task-card 
       [task]="task"
       (edit)="openEditModal(task)"

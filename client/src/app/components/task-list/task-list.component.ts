@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class TaskListComponent {
   taskService = inject(TaskService);
+  tasks$ = this.taskService.tasks$;
   
   showModal = false;
   editingTaskId: string | null = null;
