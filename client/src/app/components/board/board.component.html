@@ -1,5 +1,15 @@
 <header class="board-header">
   <h2>Board</h2>
+  <div class="filters" style="display: flex; gap: 1rem; margin-left: auto; margin-right: 1rem;">
+    <input type="text" placeholder="Search tasks..." [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)" class="custom-input" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc;">
+    <select [ngModel]="statusFilter" (ngModelChange)="onStatusChange($event)" class="custom-select" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc;">
+      <option value="">All Statuses</option>
+      <option value="To Do">To Do</option>
+      <option value="In Progress">In Progress</option>
+      <option value="In Review">In Review</option>
+      <option value="Completed">Completed</option>
+    </select>
+  </div>
   <div class="actions">
     <button (click)="resetTasks()" class="btn btn-primary">Load Tasks</button>
     <button (click)="clearTasks()" class="btn btn-secondary">Clear</button>

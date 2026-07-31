@@ -1,7 +1,8 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Task } from '../models/task.model';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
+import { debounceTime, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -15,48 +16,76 @@ export class TaskService {
   
   public users = signal<any[]>([]);
 
-  constructor() { }
+  private searchSubject = new BehaviorSubject<string>('');
+  private statusSubject = new BehaviorSubject<string>('');
 
-  loadTasks() {
-    this.http.get<any>('http://localhost:3000/users').subscribe({
+  constructor() {
+    this.http.get<any[]>('http://localhost:3000/users').subscribe({
       next: (users) => {
         this.users.set(users);
-        this.http.get<Task[]>(this.apiUrl).subscribe({
-          next: (tasksData) => {
-            const parsedTasks = tasksData.map((task: any) => {
-              let assignee_ids = task.assignee_ids || [];
-              if (assignee_ids.length === 0 && task.assignee_id) {
-                assignee_ids = [task.assignee_id];
-              }
-              
-              let assignee_names: string[] = [];
-              let assignee_initials_list: string[] = [];
-              
-              for (const id of assignee_ids) {
-                const user = users.find((u: any) => u.id === id);
-                if (user) {
-                  assignee_names.push(user.name);
-                  assignee_initials_list.push(user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase());
-                }
-              }
-
-              return {
-                ...task,
-                assignee_ids,
-                assignee_names,
-                assignee_initials_list,
-                created_at: task.created_at || "Jul 25, 2026"
-              };
-            });
-            this.tasksSubject.next(parsedTasks);
-          },
-          error: (err) => console.error("Failed to load tasks:", err)
-        });
+        this.initTaskStream();
       },
-      error: (err) => {
-        console.error("Failed to load users:", err);
-      }
+      error: (err) => console.error("Failed to load users:", err)
     });
+  }
+
+  private initTaskStream() {
+    combineLatest([
+      this.searchSubject,
+      this.statusSubject
+    ]).pipe(
+      debounceTime(300),
+      switchMap(([q, status]) => {
+        let params = new HttpParams();
+        if (q) params = params.set('q', q);
+        if (status) params = params.set('status', status);
+        return this.http.get<Task[]>(this.apiUrl, { params });
+      })
+    ).subscribe({
+      next: (tasksData) => {
+        const users = this.users();
+        const parsedTasks = tasksData.map((task: any) => {
+          let assignee_ids = task.assignee_ids || [];
+          if (assignee_ids.length === 0 && task.assignee_id) {
+            assignee_ids = [task.assignee_id];
+          }
+          
+          let assignee_names: string[] = [];
+          let assignee_initials_list: string[] = [];
+          
+          for (const id of assignee_ids) {
+            const user = users.find((u: any) => u.id === id);
+            if (user) {
+              assignee_names.push(user.name);
+              assignee_initials_list.push(user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase());
+            }
+          }
+
+          return {
+            ...task,
+            assignee_ids,
+            assignee_names,
+            assignee_initials_list,
+            created_at: task.created_at || "Jul 25, 2026"
+          };
+        });
+        this.tasksSubject.next(parsedTasks);
+      },
+      error: (err) => console.error("Failed to load tasks:", err)
+    });
+  }
+
+  updateSearch(q: string) {
+    this.searchSubject.next(q);
+  }
+
+  updateStatus(status: string) {
+    this.statusSubject.next(status);
+  }
+
+  loadTasks() {
+    // re-trigger the stream with current values
+    this.searchSubject.next(this.searchSubject.value);
   }
 
   clearTasks() {
