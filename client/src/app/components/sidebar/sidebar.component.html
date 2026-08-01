@@ -1,0 +1,32 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+  <div class="sidebar-header">
+    <h3 *ngIf="!isCollapsed">Projects</h3>
+    <button class="toggle-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
+      <svg *ngIf="!isCollapsed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <svg *ngIf="isCollapsed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <div class="sidebar-search-container" *ngIf="!isCollapsed">
+    <div class="sidebar-search">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" placeholder="Search projects..." [(ngModel)]="searchQuery">
+    </div>
+    <button class="add-project-btn" (click)="addNewProject()" title="Add Project">+</button>
+  </div>
+
+  <nav class="project-list">
+    @for (project of filteredProjects$ | async; track project.id) {
+      <button 
+        class="project-item" 
+        [class.active]="(selectedProjectId$ | async) === project.id"
+        (click)="selectProject(project.id)"
+        [title]="project.name">
+        <div class="project-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <span class="project-name" *ngIf="!isCollapsed">{{ project.name }}</span>
+      </button>
+    }
+  </nav>
+</aside>

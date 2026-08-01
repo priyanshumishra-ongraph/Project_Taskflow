@@ -9,6 +9,8 @@ export interface Task {
   assignee_ids?: string[];
   assignee_names?: string[];
   assignee_initials_list?: string[];
+  creator_id?: string;
+  creator_name?: string;
   // Legacy fields
   assignee_id?: string;
   assignee_name?: string;

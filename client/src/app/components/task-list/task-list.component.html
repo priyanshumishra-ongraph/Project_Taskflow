@@ -1,23 +1,117 @@
-<div class="task-list">
-  @for (task of tasks$ | async; track task.id) {
-    <app-task-card 
-      [task]="task"
-      (edit)="openEditModal(task)"
-      (delete)="onDelete(task.id)">
-    </app-task-card>
-  } @empty {
-    <div class="empty-state">
-      <div class="empty-icon">✓</div>
-      <h3>All caught up!</h3>
-      <p>You have no tasks in this list. Take a well-deserved break or create a new task.</p>
+<div class="task-list" *ngIf="statusColumn">
+  
+  <!-- Kanban Header -->
+  <div class="kanban-header" *ngIf="statusColumn">
+    <div class="kanban-title-wrap">
+      <span class="kanban-dot" [style.backgroundColor]="dotColor"></span>
+      <span class="kanban-title">{{ statusColumn }}</span>
+      <span class="kanban-count">{{ tasks.length }}</span>
     </div>
-  }
+    <button class="kanban-add-btn" *ngIf="statusColumn === 'To Do'" (click)="openAddModal()" title="Add Task">+</button>
+  </div>
 
-  <!-- Add Task Button -->
-  <button class="add-task-btn" (click)="openAddModal()">
+  <div class="task-cards-container" cdkDropList [cdkDropListData]="tasks" (cdkDropListDropped)="onDrop($event)">
+    @for (task of tasks; track task.id) {
+      <app-task-card 
+        cdkDrag
+        [cdkDragData]="task"
+        [task]="task"
+        (edit)="openEditModal(task)"
+        (delete)="onDelete(task.id)">
+      </app-task-card>
+    } @empty {
+      <div class="empty-state">
+        <div class="empty-icon">✓</div>
+        <h3>All caught up!</h3>
+        <p>You have no tasks in this list.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Legacy Add Task Button (hidden in Kanban view) -->
+  <button class="add-task-btn" *ngIf="!statusColumn" (click)="openAddModal()">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
     Add task
   </button>
+</div>
+
+<!-- Table View -->
+<div class="task-table-container" *ngIf="!statusColumn">
+  <table class="task-table">
+    <thead>
+      <tr>
+        <th>TITLE</th>
+        <th>CREATED BY</th>
+        <th>STATUS</th>
+        <th>ASSIGNEE</th>
+        <th>DUE</th>
+        <th>PRIORITY</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (task of tasks; track task.id) {
+        <tr class="task-row" [class.date-passed-row]="(task.due_date | dueStatus) === 'passed'" [class.date-soon-row]="(task.due_date | dueStatus) === 'soon'" (click)="openEditModal(task)">
+          <td class="cell-title">
+            <div class="title-wrap">
+              <span class="custom-tag client" *ngIf="task.due_date | dueStatus">CLIENT</span>
+              <svg *ngIf="(task.due_date | dueStatus) === 'passed'" class="alert-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+              <svg *ngIf="(task.due_date | dueStatus) === 'soon'" class="alert-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span class="task-title-text">{{ task.title }}</span>
+              <div class="tasklists-badge" *ngIf="task.progress_label === 'Tasklists'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                <span>{{ task.progress_stats?.split(' ')?.[0] }}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="text-muted">{{ task.creator_name || 'Unknown' }}</span>
+          </td>
+          <td (click)="$event.stopPropagation()">
+            <select 
+              class="status-dropdown" 
+              [ngClass]="{
+                'status-todo': task.status === 'To Do',
+                'status-progress': task.status === 'In Progress',
+                'status-testing': task.status === 'Testing',
+                'status-completed': task.status === 'Completed'
+              }"
+              [ngModel]="task.status" 
+              (ngModelChange)="updateTaskStatus(task, $event)">
+              <option value="To Do">To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Testing">Testing</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </td>
+          <td>
+            <span class="text-normal">{{ task.assignee_names?.join(', ') || 'Unknown' }}</span>
+          </td>
+          <td>
+            <div class="due-cell" [class.text-red]="(task.due_date | dueStatus) === 'passed' || (task.due_date | dueStatus) === 'soon'">
+              <span>{{ task.due_date | date:'MMM d' }}</span>
+              <span class="due-alert" *ngIf="(task.due_date | dueStatus) === 'passed'">DATE PASSED</span>
+              <span class="due-alert soon" *ngIf="(task.due_date | dueStatus) === 'soon'">DUE SOON</span>
+            </div>
+          </td>
+          <td>
+            <div class="priority-cell">
+              <svg class="text-muted" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <span class="priority {{ task.priority.toLowerCase() }}">{{ task.priority }}</span>
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="6">
+            <div class="empty-state" style="padding: 40px 0;">
+              <h3>All caught up!</h3>
+              <p>You have no tasks in this list.</p>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
 </div>
 
 <!-- Modal Overlay -->
@@ -42,7 +136,7 @@
           </div>
           <div class="form-group-inline">
             <label>Due</label>
-            <input type="text" [(ngModel)]="taskFormData.due_date" class="custom-input" placeholder="27-07-2026">
+            <input type="date" [(ngModel)]="taskFormData.due_date" class="custom-input">
           </div>
           <button class="close-btn-top" (click)="closeModal()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>

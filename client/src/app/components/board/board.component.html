@@ -1,20 +1,58 @@
 <header class="board-header">
   <h2>Board</h2>
-  <div class="filters" style="display: flex; gap: 1rem; margin-left: auto; margin-right: 1rem;">
-    <input type="text" placeholder="Search tasks..." [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)" class="custom-input" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc;">
-    <select [ngModel]="statusFilter" (ngModelChange)="onStatusChange($event)" class="custom-select" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc;">
-      <option value="">All Statuses</option>
-      <option value="To Do">To Do</option>
-      <option value="In Progress">In Progress</option>
-      <option value="In Review">In Review</option>
-      <option value="Completed">Completed</option>
-    </select>
-  </div>
-  <div class="actions">
-    <button (click)="resetTasks()" class="btn btn-primary">Load Tasks</button>
-    <button (click)="clearTasks()" class="btn btn-secondary">Clear</button>
+  <div class="header-controls">
+    <div class="view-toggle">
+      <button class="toggle-btn" [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+        List
+      </button>
+      <button class="toggle-btn" [class.active]="viewMode === 'board'" (click)="viewMode = 'board'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+        Board
+      </button>
+    </div>
+    
+    <button class="btn btn-blue" (click)="openNewTask()">+ New task</button>
   </div>
 </header>
-<section class="content">
+
+<div class="board-filters-bar">
+  <div class="search-input-wrapper">
+    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="Search tasks..." [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)" class="filter-input filter-search">
+  </div>
+  
+  <select [ngModel]="statusFilter" (ngModelChange)="onStatusChange($event)" class="filter-select">
+    <option value="">All statuses</option>
+    <option value="To Do">To Do</option>
+    <option value="In Progress">In Progress</option>
+    <option value="Testing">Testing</option>
+    <option value="Completed">Completed</option>
+  </select>
+
+  <select [ngModel]="assigneeFilter" (ngModelChange)="onAssigneeChange($event)" class="filter-select">
+    <option value="">All assignees</option>
+    @for (user of taskService.users(); track user.id) {
+      <option [value]="user.id">{{ user.name }} ({{ user.role || 'Member' }})</option>
+    }
+  </select>
+  
+  <select [ngModel]="priorityFilter" (ngModelChange)="onPriorityChange($event)" class="filter-select">
+    <option value="">All priorities</option>
+    <option value="Urgent">Urgent</option>
+    <option value="High">High</option>
+    <option value="Medium">Medium</option>
+    <option value="Low">Low</option>
+  </select>
+</div>
+
+<section class="content board-columns" *ngIf="viewMode === 'board'" cdkDropListGroup>
+  <div class="board-column"><app-task-list statusColumn="To Do" dotColor="#94a3b8"></app-task-list></div>
+  <div class="board-column separator"><app-task-list statusColumn="In Progress" dotColor="#3b82f6"></app-task-list></div>
+  <div class="board-column separator"><app-task-list statusColumn="Testing" dotColor="#f59e0b"></app-task-list></div>
+  <div class="board-column separator"><app-task-list statusColumn="Completed" dotColor="#10b981"></app-task-list></div>
+</section>
+
+<section class="content list-view" *ngIf="viewMode === 'list'">
   <app-task-list></app-task-list>
 </section>

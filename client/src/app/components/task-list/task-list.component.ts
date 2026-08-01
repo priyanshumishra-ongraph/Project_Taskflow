@@ -1,19 +1,43 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TaskCardComponent } from '../task-card/task-card.component';
 import { TaskService } from '../../services/task.service';
 import { FormsModule } from '@angular/forms';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Task } from '../../models/task.model';
+import { DueStatusPipe } from '../../shared/pipes/due-soon.pipe';
+import { StatusColorDirective } from '../../shared/directives/status-color.directive';
+import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, TaskCardComponent, FormsModule],
+  imports: [CommonModule, TaskCardComponent, FormsModule, DueStatusPipe, StatusColorDirective, DragDropModule],
   templateUrl: './task-list.component.html',
   styleUrls: ['./task-list.component.css']
 })
-export class TaskListComponent {
+export class TaskListComponent implements OnInit, OnDestroy {
+  @Input() statusColumn?: string;
+  @Input() dotColor?: string;
+
   taskService = inject(TaskService);
-  tasks$ = this.taskService.tasks$;
+  cdr = inject(ChangeDetectorRef);
+  tasks: Task[] = [];
+  private sub?: Subscription;
+
+  ngOnInit() {
+    this.sub = this.taskService.tasks$.pipe(
+      map(tasks => this.statusColumn ? tasks.filter(t => t.status === this.statusColumn) : tasks)
+    ).subscribe(filteredTasks => {
+      this.tasks = filteredTasks;
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
   
   showModal = false;
   editingTaskId: string | null = null;
@@ -45,9 +69,19 @@ export class TaskListComponent {
   
   openEditModal(task: any) {
     this.editingTaskId = task.id;
+    
+    let formattedDate = '';
+    if (task.due_date) {
+      const d = new Date(task.due_date);
+      if (!isNaN(d.getTime())) {
+        formattedDate = d.toISOString().split('T')[0];
+      }
+    }
+
     // Deep clone to avoid mutating state before saving
     this.taskFormData = { 
       ...task,
+      due_date: formattedDate,
       subtasks: task.subtasks ? task.subtasks.map((s: any) => ({ ...s })) : [],
       comments: task.comments ? task.comments.map((c: any) => ({ ...c })) : []
     };
@@ -108,7 +142,34 @@ export class TaskListComponent {
   }
   
   onDelete(id: string) {
-    this.taskService.deleteTask(id);
+    if (confirm('Are you sure you want to delete this task?')) {
+      this.taskService.deleteTask(id);
+    }
+  }
+
+  updateTaskStatus(task: Task, newStatus: string) {
+    if (newStatus && newStatus !== task.status) {
+      this.taskService.updateTask(task.id, { status: newStatus });
+    }
+  }
+
+  onDrop(event: CdkDragDrop<any>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+      const task = event.item.data as Task;
+      if (this.statusColumn) {
+        // The array is already mutated locally for instant UI update.
+        // Now trigger the backend update.
+        this.taskService.updateTask(task.id, { status: this.statusColumn });
+      }
+    }
   }
 
   getUserName(userId: string): string {

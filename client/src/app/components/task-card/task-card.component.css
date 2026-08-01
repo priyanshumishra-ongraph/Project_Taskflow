@@ -5,6 +5,7 @@
 .task-card {
   background-color: #ffffff;
   border: 1px solid #e2e8f0;
+  border-left: 4px solid #cbd5e1; /* Default border */
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
@@ -17,8 +18,13 @@
 
 .task-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
+
+.task-card.bg-todo { background-color: #f8fafc; border-left-color: #94a3b8; }
+.task-card.bg-progress { background-color: #eff6ff; border-left-color: #3b82f6; }
+.task-card.bg-testing { background-color: #fffbeb; border-left-color: #f59e0b; }
+.task-card.bg-completed { background-color: #f0fdf4; border-left-color: #10b981; }
 
 .card-title-row {
   display: flex;
@@ -119,7 +125,12 @@
   height: 100%;
   background-color: #cbd5e1;
   border-radius: 3px;
+  transition: width 0.3s ease, background-color 0.3s ease;
 }
+
+.fill-low { background-color: #3b82f6; }
+.fill-half { background-color: #f59e0b; }
+.fill-done { background-color: #10b981; }
 
 .due-row {
   display: flex;
@@ -191,4 +202,115 @@
 
 .assignee-name {
   color: #475569;
+}
+
+/* Red Layout Styles (Overdue) */
+.task-card.date-passed {
+  background-color: #fdf2f2 !important;
+  border: 1px solid #fca5a5;
+  border-left-color: #ef4444 !important;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
+}
+
+.task-card.date-soon {
+  background-color: #fdf2f2 !important;
+  border: 1px solid #fca5a5;
+  border-left-color: #ef4444 !important;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1);
+}
+
+.date-passed-alert {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.date-soon-alert {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
+.tags-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.custom-tag.client {
+  background-color: #fce7f3;
+  color: #c026d3;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.date-passed .card-title-row, .date-soon .card-title-row {
+  margin-bottom: 12px;
+}
+
+.date-passed .card-title-row h3, .date-soon .card-title-row h3 {
+  font-size: 1.15rem;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin: 0 0 12px 0;
+}
+
+.date-passed .progress-section {
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px solid #fecaca;
+}
+
+.date-soon .progress-section {
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px solid #fecaca;
+}
+
+.date-passed .due-date {
+  color: #dc2626;
+}
+
+.date-soon .due-date {
+  color: #dc2626;
+}
+
+.card-footer-red {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #64748b;
+  border-top: 1px solid rgba(252, 165, 165, 0.5);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.card-footer-red.footer-soon {
+  border-top: 1px solid rgba(252, 165, 165, 0.5);
+}
+
+.card-footer-red .ask-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #8b5cf6;
+  font-weight: 600;
+  cursor: pointer;
 }

@@ -1,13 +1,14 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TaskListComponent } from '../task-list/task-list.component';
 import { TaskService } from '../../services/task.service';
 
 @Component({
   selector: 'app-board',
   standalone: true,
-  imports: [CommonModule, TaskListComponent, FormsModule],
+  imports: [CommonModule, TaskListComponent, FormsModule, DragDropModule],
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css']
 })
@@ -15,6 +16,11 @@ export class BoardComponent implements OnInit {
   taskService = inject(TaskService);
   searchTerm = '';
   statusFilter = '';
+  assigneeFilter = '';
+  priorityFilter = '';
+  viewMode: 'list' | 'board' = 'board';
+
+  @ViewChild(TaskListComponent) firstTaskList!: TaskListComponent;
 
   onSearchChange(term: string) {
     this.searchTerm = term;
@@ -24,6 +30,16 @@ export class BoardComponent implements OnInit {
   onStatusChange(status: string) {
     this.statusFilter = status;
     this.taskService.updateStatus(status);
+  }
+
+  onAssigneeChange(assigneeId: string) {
+    this.assigneeFilter = assigneeId;
+    this.taskService.updateAssignee(assigneeId);
+  }
+
+  onPriorityChange(priority: string) {
+    this.priorityFilter = priority;
+    this.taskService.updatePriority(priority);
   }
 
   ngOnInit() {
@@ -36,5 +52,11 @@ export class BoardComponent implements OnInit {
 
   resetTasks() {
     this.taskService.loadTasks();
+  }
+
+  openNewTask() {
+    if (this.firstTaskList) {
+      this.firstTaskList.openAddModal();
+    }
   }
 }
