@@ -1,9 +1,11 @@
 <div class="signup-container">
   <div class="signup-card">
-    <h2>Create an Account</h2>
-    <p class="subtitle">Join TaskFlow today.</p>
+    <div class="signup-header">
+      <h2>Create an Account</h2>
+      <p class="subtitle">Join TaskFlow today.</p>
+    </div>
     
-    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+    <form class="signup-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
       
       <!-- Username Field -->
       <div class="form-group">
@@ -44,44 +46,55 @@
       <!-- Password Field -->
       <div class="form-group">
         <label for="password">Password</label>
-        <input 
-          id="password" 
-          type="password" 
-          formControlName="password" 
-          [class.is-invalid]="isFieldInvalid('password')"
-          placeholder="Minimum 12 characters"
-        >
-        
-        <!-- Live Password Checklist -->
-        <div class="password-checklist">
-          <div class="check-item" [class.met]="hasMinLength()">
-            <span class="icon">{{ hasMinLength() ? '✓' : '○' }}</span> At least 12 characters
-          </div>
-          <div class="check-item" [class.met]="hasUppercase()">
-            <span class="icon">{{ hasUppercase() ? '✓' : '○' }}</span> At least 1 uppercase letter (A-Z)
-          </div>
-          <div class="check-item" [class.met]="hasLowercase()">
-            <span class="icon">{{ hasLowercase() ? '✓' : '○' }}</span> At least 1 lowercase letter (a-z)
-          </div>
-          <div class="check-item" [class.met]="hasNumber()">
-            <span class="icon">{{ hasNumber() ? '✓' : '○' }}</span> At least 1 number (0-9)
-          </div>
-          <div class="check-item" [class.met]="hasSpecialChar()">
-            <span class="icon">{{ hasSpecialChar() ? '✓' : '○' }}</span> At least 1 special character (!&#64;#$%^&*)
-          </div>
+        <div class="password-input-wrapper">
+          <input 
+            id="password" 
+            [type]="showPassword ? 'text' : 'password'" 
+            formControlName="password" 
+            [class.is-invalid]="isFieldInvalid('password')"
+            placeholder="••••••••"
+          >
+          <button type="button" class="btn-view-password" (click)="togglePasswordVisibility()" aria-label="Toggle password visibility">
+            @if (!showPassword) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            }
+            @if (showPassword) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 2 20 20"/><path d="M10.41 10.41a3 3 0 1 1 4.18 4.18"/><path d="M17.47 17.47A10.64 10.64 0 0 1 12 19c-7 0-10-7-10-7a19.24 19.24 0 0 1 6.54-5.54"/><path d="M18.89 18.89a19.2 19.2 0 0 0 3.11-6.89s-3-7-10-7a10.64 10.64 0 0 0-4.53.97"/></svg>
+            }
+          </button>
         </div>
+        @if (isFieldInvalid('password')) {
+          <div class="error-msg" style="display: flex; flex-direction: column; gap: 4px;">
+            @if (signupForm.get('password')?.errors?.['required']) { <span>• Password is required.</span> }
+            @if (signupForm.get('password')?.errors?.['minlength']) { <span>• Must be at least 12 characters.</span> }
+            @if (signupForm.get('password')?.errors?.['missingUppercase']) { <span>• Missing an uppercase letter (A-Z).</span> }
+            @if (signupForm.get('password')?.errors?.['missingLowercase']) { <span>• Missing a lowercase letter (a-z).</span> }
+            @if (signupForm.get('password')?.errors?.['missingNumber']) { <span>• Missing a number (0-9).</span> }
+            @if (signupForm.get('password')?.errors?.['missingSpecialChar']) { <span>• Missing a special character.</span> }
+          </div>
+        }
       </div>
 
       <!-- Confirm Password Field -->
       <div class="form-group">
         <label for="confirmPassword">Confirm Password</label>
-        <input 
-          id="confirmPassword" 
-          type="password" 
-          formControlName="confirmPassword" 
-          [class.is-invalid]="signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched"
-          placeholder="Confirm your password"
-        >
+        <div class="password-input-wrapper">
+          <input 
+            id="confirmPassword" 
+            [type]="showConfirmPassword ? 'text' : 'password'" 
+            formControlName="confirmPassword" 
+            [class.is-invalid]="signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched"
+            placeholder="Confirm your password"
+          >
+          <button type="button" class="btn-view-password" (click)="toggleConfirmPasswordVisibility()" aria-label="Toggle confirm password visibility">
+            @if (!showConfirmPassword) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            }
+            @if (showConfirmPassword) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 2 20 20"/><path d="M10.41 10.41a3 3 0 1 1 4.18 4.18"/><path d="M17.47 17.47A10.64 10.64 0 0 1 12 19c-7 0-10-7-10-7a19.24 19.24 0 0 1 6.54-5.54"/><path d="M18.89 18.89a19.2 19.2 0 0 0 3.11-6.89s-3-7-10-7a10.64 10.64 0 0 0-4.53.97"/></svg>
+            }
+          </button>
+        </div>
         @if (signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched) {
           <div class="error-msg">
             <span>Passwords do not match!</span>
@@ -92,6 +105,10 @@
       <button type="submit" class="btn-submit" [disabled]="signupForm.invalid">
         Sign Up Now
       </button>
+
+      <div class="login-link">
+        Already have an account? <a routerLink="/login">Log in</a>
+      </div>
       
       @if (submittedSuccessfully) {
         <div class="success-msg">

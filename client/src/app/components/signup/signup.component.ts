@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { passwordStrengthValidator, passwordMatchValidator } from '../../shared/validators/password.validator';
 
 @Component({
@@ -13,8 +13,19 @@ import { passwordStrengthValidator, passwordMatchValidator } from '../../shared/
 })
 export class SignupComponent {
   fb = inject(FormBuilder);
+  router = inject(Router);
   
   submittedSuccessfully = false;
+  showPassword = false;
+  showConfirmPassword = false;
+
+  togglePasswordVisibility() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
 
   // Initialize the Reactive Form
   signupForm = this.fb.group({
@@ -23,31 +34,6 @@ export class SignupComponent {
     password: ['', [Validators.required, passwordStrengthValidator]],
     confirmPassword: ['']
   }, { validators: passwordMatchValidator });
-
-  // Password requirement checkers for the checklist UI
-  passwordVal(): string {
-    return this.signupForm.get('password')?.value || '';
-  }
-
-  hasMinLength(): boolean {
-    return this.passwordVal().length >= 12;
-  }
-
-  hasUppercase(): boolean {
-    return /[A-Z]/.test(this.passwordVal());
-  }
-
-  hasLowercase(): boolean {
-    return /[a-z]/.test(this.passwordVal());
-  }
-
-  hasNumber(): boolean {
-    return /[0-9]/.test(this.passwordVal());
-  }
-
-  hasSpecialChar(): boolean {
-    return /[^a-zA-Z0-9]/.test(this.passwordVal());
-  }
 
   // Helper method for template to check field validity cleanly
   isFieldInvalid(fieldName: string): boolean {
@@ -63,10 +49,11 @@ export class SignupComponent {
       // Reset the form back to pristine state
       this.signupForm.reset();
       
-      // Remove success message after 4 seconds
+      // Remove success message and redirect after 1.5 seconds
       setTimeout(() => {
         this.submittedSuccessfully = false;
-      }, 4000);
+        this.router.navigate(['/login']);
+      }, 1500);
     } else {
       // Mark all fields as touched so errors display if they try to submit an empty form
       this.signupForm.markAllAsTouched();

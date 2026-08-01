@@ -69,8 +69,8 @@
   background: white;
   border-radius: 12px;
   width: 90%;
-  max-width: 650px;
-  height: 90vh;
+  max-width: 750px;
+  height: 75vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -350,7 +350,7 @@
 }
 
 .status-todo {
-  background-color: #f1f5f9;
+  background-color: white;
   color: #475569;
   border: 1px solid #e2e8f0;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -358,7 +358,7 @@
 .status-todo:focus { box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.2); }
 
 .status-progress {
-  background-color: #eff6ff;
+  background-color: white;
   color: #3b82f6;
   border: 1px solid #bfdbfe;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -366,7 +366,7 @@
 .status-progress:focus { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
 
 .status-testing {
-  background-color: #fef3c7;
+  background-color: white;
   color: #d97706;
   border: 1px solid #fde68a;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -374,7 +374,7 @@
 .status-testing:focus { box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.2); }
 
 .status-completed {
-  background-color: #ecfdf5;
+  background-color: white;
   color: #10b981;
   border: 1px solid #a7f3d0;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -661,7 +661,7 @@
   position: absolute;
   bottom: 16px;
   right: 16px;
-  background: #d8b4fe;
+  background: #2563eb;
   border: none;
   width: 32px;
   height: 32px;
@@ -670,9 +670,13 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
 }
 .btn-send:hover {
-  background: #c084fc;
+  background: #1d4ed8;
+}
+.btn-send:active {
+  transform: scale(0.95);
 }
 
 .comment-hints p {
@@ -719,6 +723,26 @@
 }
 .btn-solid-purple:hover {
   background: #c084fc;
+}
+
+.btn-solid-blue {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-solid-blue:hover {
+  background: #1d4ed8;
+}
+
+.btn-solid-blue:active {
+  transform: scale(0.98);
 }
 
 /* Hide scrollbar for webkit but allow scrolling */

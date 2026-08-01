@@ -2,13 +2,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 160px);
+  min-height: 100vh;
+  width: 100%;
 }
 
 .login-card {
   background: white;
   width: 100%;
-  max-width: 400px;
+  max-width: 480px;
   border-radius: 12px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   padding: 40px;
@@ -82,4 +83,52 @@
 
 .btn-login:hover {
   background-color: #1d4ed8;
+}
+
+.signup-link {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.signup-link a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.signup-link a:hover {
+  text-decoration: underline;
+}
+
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-input-wrapper input {
+  padding-right: 40px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.btn-view-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.btn-view-password:hover {
+  color: #3b82f6;
 }

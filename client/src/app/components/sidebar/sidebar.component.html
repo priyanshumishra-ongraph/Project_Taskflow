@@ -1,7 +1,7 @@
 <aside class="sidebar" [class.collapsed]="isCollapsed">
   <div class="sidebar-header">
     <h3 *ngIf="!isCollapsed">Projects</h3>
-    <button class="toggle-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
+    <button class="toggle-btn" (click)="toggleSidebar()">
       <svg *ngIf="!isCollapsed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
       <svg *ngIf="isCollapsed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     </button>
@@ -12,7 +12,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       <input type="text" placeholder="Search projects..." [(ngModel)]="searchQuery">
     </div>
-    <button class="add-project-btn" (click)="addNewProject()" title="Add Project">+</button>
+    <button class="add-project-btn" (click)="addNewProject()">+</button>
   </div>
 
   <nav class="project-list">
