@@ -1,56 +1,65 @@
-<header class="board-header">
-  <h2>Board</h2>
-  <div class="header-controls">
-    <div class="view-toggle">
-      <button class="toggle-btn" [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
-        List
-      </button>
-      <button class="toggle-btn" [class.active]="viewMode === 'board'" (click)="viewMode = 'board'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
-        Board
-      </button>
-    </div>
+<header class="board-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+  <h2 style="margin: 0; font-size: 2rem; font-weight: 500;">Board</h2>
+  <div class="header-controls" style="display: flex; gap: 16px; align-items: center;">
+    <mat-button-toggle-group [(ngModel)]="viewMode">
+      <mat-button-toggle value="list">
+        <mat-icon>list</mat-icon> List
+      </mat-button-toggle>
+      <mat-button-toggle value="board">
+        <mat-icon>dashboard</mat-icon> Board
+      </mat-button-toggle>
+    </mat-button-toggle-group>
     
-    <button class="btn btn-blue" (click)="openNewTask()">+ New task</button>
+    <button mat-flat-button color="primary" (click)="openNewTask()">
+      <mat-icon>add</mat-icon> New task
+    </button>
   </div>
 </header>
 
-<div class="board-filters-bar">
-  <div class="search-input-wrapper">
-    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-    <input type="text" placeholder="Search tasks..." [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)" class="filter-input filter-search">
-  </div>
+<div class="board-filters-bar" style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; align-items: flex-end;">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" style="flex: 1; min-width: 250px;">
+    <mat-icon matPrefix style="margin-right: 8px;">search</mat-icon>
+    <input matInput type="text" placeholder="Search tasks..." [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)">
+  </mat-form-field>
   
-  <select [ngModel]="statusFilter" (ngModelChange)="onStatusChange($event)" class="filter-select">
-    <option value="">All statuses</option>
-    <option value="To Do">To Do</option>
-    <option value="In Progress">In Progress</option>
-    <option value="Testing">Testing</option>
-    <option value="Completed">Completed</option>
-  </select>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Status</mat-label>
+    <mat-select [ngModel]="statusFilter" (ngModelChange)="onStatusChange($event)">
+      <mat-option value="">All statuses</mat-option>
+      <mat-option value="To Do">To Do</mat-option>
+      <mat-option value="In Progress">In Progress</mat-option>
+      <mat-option value="Testing">Testing</mat-option>
+      <mat-option value="Completed">Completed</mat-option>
+    </mat-select>
+  </mat-form-field>
 
-  <select [ngModel]="assigneeFilter" (ngModelChange)="onAssigneeChange($event)" class="filter-select">
-    <option value="">All assignees</option>
-    @for (user of taskService.users(); track user.id) {
-      <option [value]="user.id">{{ user.name }} ({{ user.role || 'Member' }})</option>
-    }
-  </select>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Assignee</mat-label>
+    <mat-select [ngModel]="assigneeFilter" (ngModelChange)="onAssigneeChange($event)">
+      <mat-option value="">All assignees</mat-option>
+      @for (user of taskService.users(); track user.id) {
+        <mat-option [value]="user.id">{{ user.name }} ({{ user.role || 'Member' }})</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
   
-  <select [ngModel]="priorityFilter" (ngModelChange)="onPriorityChange($event)" class="filter-select">
-    <option value="">All priorities</option>
-    <option value="Urgent">Urgent</option>
-    <option value="High">High</option>
-    <option value="Medium">Medium</option>
-    <option value="Low">Low</option>
-  </select>
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Priority</mat-label>
+    <mat-select [ngModel]="priorityFilter" (ngModelChange)="onPriorityChange($event)">
+      <mat-option value="">All priorities</mat-option>
+      <mat-option value="Urgent">Urgent</mat-option>
+      <mat-option value="High">High</mat-option>
+      <mat-option value="Medium">Medium</mat-option>
+      <mat-option value="Low">Low</mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>
 
-<section class="content board-columns" *ngIf="viewMode === 'board'" cdkDropListGroup>
-  <div class="board-column"><app-task-list statusColumn="To Do" dotColor="#94a3b8"></app-task-list></div>
-  <div class="board-column separator"><app-task-list statusColumn="In Progress" dotColor="#3b82f6"></app-task-list></div>
-  <div class="board-column separator"><app-task-list statusColumn="Testing" dotColor="#f59e0b"></app-task-list></div>
-  <div class="board-column separator"><app-task-list statusColumn="Completed" dotColor="#10b981"></app-task-list></div>
+<section class="content board-columns" *ngIf="viewMode === 'board'" cdkDropListGroup style="display: flex; gap: 24px; overflow-x: auto; padding-bottom: 16px;">
+  <div class="board-column" style="flex: 1; min-width: 300px;"><app-task-list statusColumn="To Do" dotColor="#94a3b8"></app-task-list></div>
+  <div class="board-column" style="flex: 1; min-width: 300px;"><app-task-list statusColumn="In Progress" dotColor="#3b82f6"></app-task-list></div>
+  <div class="board-column" style="flex: 1; min-width: 300px;"><app-task-list statusColumn="Testing" dotColor="#f59e0b"></app-task-list></div>
+  <div class="board-column" style="flex: 1; min-width: 300px;"><app-task-list statusColumn="Completed" dotColor="#10b981"></app-task-list></div>
 </section>
 
 <section class="content list-view" *ngIf="viewMode === 'list'">

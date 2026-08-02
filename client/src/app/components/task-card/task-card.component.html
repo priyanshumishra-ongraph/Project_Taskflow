@@ -1,81 +1,77 @@
-<div class="task-card" 
+<mat-card class="task-card" 
      [class.date-passed]="(task.due_date | dueStatus) === 'passed'"
      [class.date-soon]="(task.due_date | dueStatus) === 'soon'"
      [class.bg-todo]="task.status === 'To Do'"
      [class.bg-progress]="task.status === 'In Progress'"
      [class.bg-testing]="task.status === 'Testing'"
-     [class.bg-completed]="task.status === 'Completed'">
+     [class.bg-completed]="task.status === 'Completed'"
+     style="margin-bottom: 12px; border-radius: 8px;">
   
-  <div class="date-passed-alert" *ngIf="(task.due_date | dueStatus) === 'passed'">
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
-    <span>DATE PASSED</span>
-  </div>
-
-  <div class="date-soon-alert" *ngIf="(task.due_date | dueStatus) === 'soon'">
-    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    <span>DUE SOON</span>
-  </div>
-
-
-  <div class="card-title-row">
-    <div style="flex: 1;">
-      <h3 [appStatusColor]="task.status">{{ task.title }}</h3>
-      <p class="subtitle" *ngIf="task.description">{{ task.description }}</p>
+  <mat-card-content *ngIf="(task.due_date | dueStatus)" style="padding-bottom: 0;">
+    <div class="date-passed-alert" *ngIf="(task.due_date | dueStatus) === 'passed'">
+      <mat-icon style="font-size: 14px; width: 14px; height: 14px;">warning</mat-icon>
+      <span>DATE PASSED</span>
     </div>
-    
-    <div class="header-actions">
-      <button class="icon-btn edit" (click)="onEdit()" title="Edit Task">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    <div class="date-soon-alert" *ngIf="(task.due_date | dueStatus) === 'soon'">
+      <mat-icon style="font-size: 14px; width: 14px; height: 14px;">schedule</mat-icon>
+      <span>DUE SOON</span>
+    </div>
+  </mat-card-content>
+
+  <mat-card-header style="display: flex; justify-content: space-between; align-items: flex-start; padding-top: 16px;">
+    <div style="flex: 1;">
+      <mat-card-title [appStatusColor]="task.status" style="font-size: 1rem; font-weight: 500; margin-bottom: 4px;">
+        {{ task.title }}
+      </mat-card-title>
+      <mat-card-subtitle *ngIf="task.description">{{ task.description }}</mat-card-subtitle>
+    </div>
+    <div class="header-actions" style="display: flex; align-items: flex-start; gap: 4px;">
+      <button mat-icon-button (click)="onEdit()" title="Edit Task" style="width: 32px; height: 32px; padding: 4px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">edit</mat-icon>
       </button>
-      <button class="icon-btn delete" (click)="onDelete()" title="Delete Task">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+      <button mat-icon-button color="warn" (click)="onDelete()" title="Delete Task" style="width: 32px; height: 32px; padding: 4px;">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>
       </button>
       <span class="priority {{ task.priority.toLowerCase() }}">{{ task.priority }}</span>
     </div>
-  </div>
+  </mat-card-header>
 
-  <div class="progress-section">
-    <div class="progress-header">
-      <span class="progress-label">{{ task.progress_label }}</span>
-      <span class="progress-stats">{{ task.progress_stats }}</span>
+  <mat-card-content style="padding-top: 12px;">
+    <div class="progress-section">
+      <div class="progress-header" style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #64748b; margin-bottom: 4px;">
+        <span>{{ task.progress_label }}</span>
+        <span>{{ task.progress_stats }}</span>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="task.progress_bar_fill" 
+        [color]="task.progress_bar_fill === 100 ? 'primary' : 'accent'"
+        style="height: 6px; border-radius: 3px;"></mat-progress-bar>
     </div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" 
-           [style.width]="task.progress_bar_fill + '%'"
-           [ngClass]="{
-             'fill-low': task.progress_bar_fill! > 0 && task.progress_bar_fill! < 50,
-             'fill-half': task.progress_bar_fill! >= 50 && task.progress_bar_fill! < 100,
-             'fill-done': task.progress_bar_fill! === 100
-           }"></div>
-    </div>
-  </div>
 
-  <div class="due-row">
-    <div class="due-date">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-      <span>{{ task.due_date | date:'MMM d' }}</span>
+    <div class="due-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 0.85rem; color: #64748b;">
+      <div class="due-date" style="display: flex; align-items: center; gap: 6px;">
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px;">calendar_today</mat-icon>
+        <span>{{ task.due_date | date:'MMM d' }}</span>
+      </div>
+      <div class="avatars" style="display: flex;">
+        @for (initials of task.assignee_initials_list; track initials) {
+          <div class="avatar" style="width: 24px; height: 24px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; margin-left: -6px; border: 2px solid white;">{{ initials }}</div>
+        }
+      </div>
     </div>
-    <div class="avatars">
-      @for (initials of task.assignee_initials_list; track initials) {
-        <div class="avatar">{{ initials }}</div>
-      }
-    </div>
-  </div>
+  </mat-card-content>
 
-  <hr class="divider" *ngIf="!(task.due_date | dueStatus)">
+  <mat-divider *ngIf="!(task.due_date | dueStatus)"></mat-divider>
 
-  <div class="card-footer" *ngIf="!(task.due_date | dueStatus)">
-    <span class="created-date">{{ task.created_at || 'N/A' }}</span>
-    <div class="assignee">
-      <span class="assignee-name">{{ task.assignee_names?.join(', ') || 'Unknown User' }}</span>
-    </div>
-  </div>
+  <mat-card-actions *ngIf="!(task.due_date | dueStatus)" style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; padding: 12px 16px;">
+    <span>{{ task.created_at || 'N/A' }}</span>
+    <span>{{ task.assignee_names?.join(', ') || 'Unknown User' }}</span>
+  </mat-card-actions>
 
-  <div class="card-footer-red" *ngIf="(task.due_date | dueStatus)" [ngClass]="{'footer-soon': (task.due_date | dueStatus) === 'soon'}">
-    <span class="created-date">{{ task.created_at || 'N/A' }}</span>
-    <div class="ask-btn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+  <mat-card-actions *ngIf="(task.due_date | dueStatus)" [ngClass]="{'footer-soon': (task.due_date | dueStatus) === 'soon'}" class="card-footer-red" style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; align-items: center; padding: 12px 16px;">
+    <span>{{ task.created_at || 'N/A' }}</span>
+    <div class="ask-btn" style="display: flex; align-items: center; gap: 4px; color: #ef4444; font-weight: 500; cursor: pointer;">
+      <mat-icon style="font-size: 14px; width: 14px; height: 14px;">help_outline</mat-icon>
       <span>Ask {{ task.assignee_names?.join(', ') || 'Unknown User' }}</span>
     </div>
-  </div>
-</div>
+  </mat-card-actions>
+</mat-card>

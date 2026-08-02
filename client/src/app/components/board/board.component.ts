@@ -4,11 +4,20 @@ import { FormsModule } from '@angular/forms';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { TaskListComponent } from '../task-list/task-list.component';
 import { TaskService } from '../../services/task.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @Component({
   selector: 'app-board',
   standalone: true,
-  imports: [CommonModule, TaskListComponent, FormsModule, DragDropModule],
+  imports: [
+    CommonModule, TaskListComponent, FormsModule, DragDropModule,
+    MatFormFieldModule, MatSelectModule, MatInputModule, MatIconModule, MatButtonModule, MatButtonToggleModule
+  ],
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css']
 })

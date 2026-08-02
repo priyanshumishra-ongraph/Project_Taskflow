@@ -108,7 +108,7 @@
       "id": "task_5",
       "title": "Setup CI/CD Pipeline",
       "description": "Configure GitHub actions for automated testing and deployment.",
-      "status": "To Do",
+      "status": "In Progress",
       "priority": "High",
       "due_date": "2026-10-24",
       "project_id": "proj_2",
