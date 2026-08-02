@@ -105,37 +105,10 @@
   ],
   "tasks": [
     {
-      "id": "task_3",
-      "title": "Logo update",
-      "description": "Replace the old raster logo with the new SVG version in the navbar.",
-      "status": "Testing",
-      "priority": "Low",
-      "due_date": "2026-10-20",
-      "project_id": "proj_1",
-      "subtasks": [],
-      "tag_ids": [
-        "tag_3"
-      ],
-      "comments": [],
-      "time_logs": [
-        {
-          "id": "log_2",
-          "user_id": "usr_1",
-          "duration_minutes": 45,
-          "created_at": "2026-10-19T10:00:00Z"
-        }
-      ],
-      "assignee_ids": [
-        "usr_1"
-      ],
-      "created_at": "Jul 25, 2026",
-      "creator_id": "usr_1"
-    },
-    {
       "id": "task_5",
       "title": "Setup CI/CD Pipeline",
       "description": "Configure GitHub actions for automated testing and deployment.",
-      "status": "In Progress",
+      "status": "To Do",
       "priority": "High",
       "due_date": "2026-10-24",
       "project_id": "proj_2",
@@ -191,7 +164,7 @@
       "id": "task_7",
       "title": "Review Q3 Analytics",
       "description": "Pull the Google Analytics report and summarize key growth metrics.",
-      "status": "Testing",
+      "status": "Completed",
       "priority": "High",
       "due_date": "2026-10-15T00:00:00Z",
       "project_id": "proj_3",
@@ -216,38 +189,6 @@
     {
       "id": "test1",
       "title": "test",
-      "creator_id": "usr_1"
-    },
-    {
-      "id": "task_123456",
-      "title": "test",
-      "description": "",
-      "status": "To Do",
-      "priority": "Low",
-      "due_date": "2026-07-28",
-      "project_id": "proj_1",
-      "assignee_ids": [
-        "usr_1"
-      ],
-      "created_at": "Aug 1, 2026",
-      "subtasks": [],
-      "comments": [],
-      "creator_id": "usr_1"
-    },
-    {
-      "id": "task_qyg7d980h",
-      "title": "Hi ",
-      "description": "wertghj",
-      "status": "To Do",
-      "priority": "High",
-      "due_date": "2026-08-01",
-      "project_id": "proj_1",
-      "assignee_ids": [
-        "usr_2"
-      ],
-      "created_at": "Aug 1, 2026",
-      "subtasks": [],
-      "comments": [],
       "creator_id": "usr_1"
     }
   ]

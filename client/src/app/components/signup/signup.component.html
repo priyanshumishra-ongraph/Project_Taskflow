@@ -1,11 +1,9 @@
 <div class="signup-container">
   <div class="signup-card">
-    <div class="signup-header">
-      <h2>Create an Account</h2>
-      <p class="subtitle">Join TaskFlow today.</p>
-    </div>
+    <h2>Create an Account</h2>
+    <p class="subtitle">Join TaskFlow today.</p>
     
-    <form class="signup-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
       
       <!-- Username Field -->
       <div class="form-group">
@@ -78,23 +76,13 @@
       <!-- Confirm Password Field -->
       <div class="form-group">
         <label for="confirmPassword">Confirm Password</label>
-        <div class="password-input-wrapper">
-          <input 
-            id="confirmPassword" 
-            [type]="showConfirmPassword ? 'text' : 'password'" 
-            formControlName="confirmPassword" 
-            [class.is-invalid]="signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched"
-            placeholder="Confirm your password"
-          >
-          <button type="button" class="btn-view-password" (click)="toggleConfirmPasswordVisibility()" aria-label="Toggle confirm password visibility">
-            @if (!showConfirmPassword) {
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-            }
-            @if (showConfirmPassword) {
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 2 20 20"/><path d="M10.41 10.41a3 3 0 1 1 4.18 4.18"/><path d="M17.47 17.47A10.64 10.64 0 0 1 12 19c-7 0-10-7-10-7a19.24 19.24 0 0 1 6.54-5.54"/><path d="M18.89 18.89a19.2 19.2 0 0 0 3.11-6.89s-3-7-10-7a10.64 10.64 0 0 0-4.53.97"/></svg>
-            }
-          </button>
-        </div>
+        <input 
+          id="confirmPassword" 
+          type="password" 
+          formControlName="confirmPassword" 
+          [class.is-invalid]="signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched"
+          placeholder="Confirm your password"
+        >
         @if (signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched) {
           <div class="error-msg">
             <span>Passwords do not match!</span>
