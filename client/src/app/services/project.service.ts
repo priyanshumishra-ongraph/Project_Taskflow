@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Project {
   id: string;
@@ -13,7 +14,7 @@ export interface Project {
 })
 export class ProjectService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/projects';
+  private apiUrl = `${environment.apiUrl}/projects`;
   
   private projectsSubject = new BehaviorSubject<Project[]>([]);
   public projects$: Observable<Project[]> = this.projectsSubject.asObservable();
@@ -26,8 +27,8 @@ export class ProjectService {
   }
 
   loadProjects() {
-    this.http.get<Project[]>(this.apiUrl).subscribe({
-      next: (projects) => this.projectsSubject.next(projects),
+    this.http.get<{data: Project[]}>(this.apiUrl).subscribe({
+      next: (res) => this.projectsSubject.next(res.data),
       error: (err) => console.error("Failed to load projects:", err)
     });
   }
@@ -42,10 +43,9 @@ export class ProjectService {
 
   addProject(name: string) {
     const newProject: Partial<Project> = {
-      id: 'proj_' + Math.random().toString(36).substr(2, 9),
       name,
       description: ''
     };
-    this.http.post<Project>(this.apiUrl, newProject).subscribe(() => this.loadProjects());
+    this.http.post<{data: Project}>(this.apiUrl, newProject).subscribe(() => this.loadProjects());
   }
 }

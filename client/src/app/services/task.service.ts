@@ -2,8 +2,9 @@ import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Task } from '../models/task.model';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { debounceTime, switchMap } from 'rxjs/operators';
+import { debounceTime, switchMap, map } from 'rxjs/operators';
 import { ProjectService } from './project.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +12,17 @@ import { ProjectService } from './project.service';
 export class TaskService {
   private http = inject(HttpClient);
   private projectService = inject(ProjectService);
-  private apiUrl = 'http://localhost:3000/tasks';
+  private apiUrl = `${environment.apiUrl}/tasks`;
   
   private tasksSubject = new BehaviorSubject<Task[]>([]);
   public tasks$: Observable<Task[]> = this.tasksSubject.asObservable();
   
-  public users = signal<any[]>([]);
+  // Temporary hardcoded users until Users API is built
+  public users = signal<any[]>([
+    { id: 'usr_1', name: 'John Doe', role: 'Admin' },
+    { id: 'usr_2', name: 'Jane Smith', role: 'Member' },
+    { id: 'usr_3', name: 'Bob Johnson', role: 'Member' }
+  ]);
 
   private searchSubject = new BehaviorSubject<string>('');
   private statusSubject = new BehaviorSubject<string>('');
@@ -24,13 +30,7 @@ export class TaskService {
   private prioritySubject = new BehaviorSubject<string>('');
 
   constructor() {
-    this.http.get<any[]>('http://localhost:3000/users').subscribe({
-      next: (users) => {
-        this.users.set(users);
-        this.initTaskStream();
-      },
-      error: (err) => console.error("Failed to load users:", err)
-    });
+    this.initTaskStream();
   }
 
   private initTaskStream() {
@@ -44,12 +44,16 @@ export class TaskService {
       debounceTime(300),
       switchMap(([q, status, assignee, priority, projectId]) => {
         let params = new HttpParams();
+        
         if (q) params = params.set('q', q);
         if (status) params = params.set('status', status);
         if (assignee) params = params.set('assignee_ids_like', assignee);
         if (priority) params = params.set('priority', priority);
         if (projectId) params = params.set('project_id', projectId);
-        return this.http.get<Task[]>(this.apiUrl, { params });
+        
+        return this.http.get<{data: Task[]}>(this.apiUrl, { params }).pipe(
+          map(res => res.data)
+        );
       })
     ).subscribe({
       next: (tasksData) => {
@@ -124,7 +128,6 @@ export class TaskService {
   }
 
   loadTasks() {
-    // re-trigger the stream with current values
     this.searchSubject.next(this.searchSubject.value);
   }
 
@@ -134,7 +137,7 @@ export class TaskService {
 
   addTask(newTask: Partial<Task>) {
     const task: Partial<Task> = {
-      id: 'task_' + Math.random().toString(36).substr(2, 9),
+      // Don't assign an ID here; backend creates UUIDs
       title: newTask.title || 'Untitled Task',
       description: newTask.description || '',
       status: newTask.status || 'To Do',
@@ -147,19 +150,20 @@ export class TaskService {
       ...newTask
     };
     
-    // Explicitly delete frontend computed fields that shouldn't persist in db.json
+    // Explicitly delete frontend computed fields that shouldn't persist in db.json/backend
     delete (task as any).assignee_names;
     delete (task as any).assignee_initials_list;
     delete (task as any).creator_name;
     delete (task as any).progress_label;
     delete (task as any).progress_stats;
     delete (task as any).progress_bar_fill;
+    delete (task as any).id;
 
-    this.http.post<Task>(this.apiUrl, task).subscribe(() => this.loadTasks());
+    this.http.post<{data: Task}>(this.apiUrl, task).subscribe(() => this.loadTasks());
   }
 
   updateTask(id: string, updates: Partial<Task>) {
-    this.http.patch<Task>(`${this.apiUrl}/${id}`, updates).subscribe(() => this.loadTasks());
+    this.http.put<{data: Task}>(`${this.apiUrl}/${id}`, updates).subscribe(() => this.loadTasks());
   }
 
   deleteTask(id: string) {
