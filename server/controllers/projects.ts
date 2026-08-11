@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 
 export interface Project {
@@ -12,57 +12,71 @@ export interface Project {
 
 let projects: Project[] = [];
 
-export const getProjects = (req: Request, res: Response) => {
-  res.status(200).json({ data: projects });
+export const getProjects = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.status(200).json({ data: projects });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const createProject = (req: Request, res: Response) => {
-  const { name } = req.body;
-  
-  if (!name) {
-    return res.status(400).json({ error: 'Project name is required' });
+export const createProject = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name } = req.body;
+    
+    // Validation is handled by express-validator middleware
+
+    const newProject: Project = {
+      id: crypto.randomUUID(),
+      ...req.body, // spread all fields
+      name,
+      status: req.body.status || 'Active',
+      created_at: new Date().toISOString()
+    };
+
+    projects.push(newProject);
+    res.status(201).json({ data: newProject });
+  } catch (error) {
+    next(error);
   }
-
-  const newProject: Project = {
-    id: crypto.randomUUID(),
-    ...req.body, // spread all fields
-    name,
-    status: req.body.status || 'Active',
-    created_at: new Date().toISOString()
-  };
-
-  projects.push(newProject);
-  res.status(201).json({ data: newProject });
 };
 
-export const updateProject = (req: Request, res: Response) => {
-  const { id } = req.params;
+export const updateProject = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
 
-  const projectIndex = projects.findIndex(p => p.id === id);
-  const existingProject = projects[projectIndex];
-  
-  if (projectIndex === -1 || !existingProject) {
-    return res.status(404).json({ error: 'Project not found' });
+    const projectIndex = projects.findIndex(p => p.id === id);
+    const existingProject = projects[projectIndex];
+    
+    if (projectIndex === -1 || !existingProject) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    const updatedProject: Project = {
+      ...existingProject,
+      ...req.body,
+      id: existingProject.id
+    };
+
+    projects[projectIndex] = updatedProject;
+    res.status(200).json({ data: updatedProject });
+  } catch (error) {
+    next(error);
   }
-
-  const updatedProject: Project = {
-    ...existingProject,
-    ...req.body,
-    id: existingProject.id
-  };
-
-  projects[projectIndex] = updatedProject;
-  res.status(200).json({ data: updatedProject });
 };
 
-export const deleteProject = (req: Request, res: Response) => {
-  const { id } = req.params;
-  const projectIndex = projects.findIndex(p => p.id === id);
-  
-  if (projectIndex === -1) {
-    return res.status(404).json({ error: 'Project not found' });
-  }
+export const deleteProject = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const projectIndex = projects.findIndex(p => p.id === id);
+    
+    if (projectIndex === -1) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
 
-  projects.splice(projectIndex, 1);
-  res.status(200).json({ data: { message: 'Project deleted successfully' } });
+    projects.splice(projectIndex, 1);
+    res.status(200).json({ data: { message: 'Project deleted successfully' } });
+  } catch (error) {
+    next(error);
+  }
 };

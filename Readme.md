@@ -44,3 +44,5 @@
     *   *Deliverable:* tasks CRUD API
 *   **Day 18:** Add project routes; organise into routes / controllers; keep response shapes consistent.
     *   *Deliverable:* projects API and fixed the folder structure and architecture
+*   **Day 19:** Add input validation (express-validator), central error-handling middleware, CORS and dotenv config.
+    *   *Deliverable:* auth-protected API

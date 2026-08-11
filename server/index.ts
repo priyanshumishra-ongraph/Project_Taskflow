@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import taskRoutes from "./routes/tasks";
 import projectRoutes from "./routes/projects";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,9 @@ app.get('/health', (req: Request, res: Response) => {
 // API Routes
 app.use('/api/tasks', taskRoutes);
 app.use('/api/projects', projectRoutes);
+
+// Error Handling Middleware (must be after routes)
+app.use(errorHandler);
 
 // Boot server
 app.listen(PORT, () => {
