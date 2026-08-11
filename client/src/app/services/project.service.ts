@@ -15,6 +15,7 @@ export interface Project {
 export class ProjectService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/projects`;
+  private readonly storageKey = 'taskflow_projects';
   
   private projectsSubject = new BehaviorSubject<Project[]>([]);
   public projects$: Observable<Project[]> = this.projectsSubject.asObservable();
@@ -27,10 +28,22 @@ export class ProjectService {
   }
 
   loadProjects() {
-    this.http.get<{data: Project[]}>(this.apiUrl).subscribe({
-      next: (res) => this.projectsSubject.next(res.data),
-      error: (err) => console.error("Failed to load projects:", err)
-    });
+    const stored = localStorage.getItem(this.storageKey);
+    if (stored) {
+      this.projectsSubject.next(JSON.parse(stored));
+    } else {
+      this.http.get<{data: Project[]}>(this.apiUrl).subscribe({
+        next: (res) => {
+          this.saveToStorage(res.data);
+          this.projectsSubject.next(res.data);
+        },
+        error: (err) => console.error("Failed to load projects:", err)
+      });
+    }
+  }
+
+  private saveToStorage(projects: Project[]) {
+    localStorage.setItem(this.storageKey, JSON.stringify(projects));
   }
 
   setSelectedProject(id: string) {
@@ -42,10 +55,16 @@ export class ProjectService {
   }
 
   addProject(name: string) {
-    const newProject: Partial<Project> = {
+    const newProject: Project = {
+      id: `proj_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
       name,
       description: ''
     };
-    this.http.post<{data: Project}>(this.apiUrl, newProject).subscribe(() => this.loadProjects());
+    
+    const currentProjects = this.projectsSubject.value;
+    const updatedProjects = [...currentProjects, newProject];
+    
+    this.saveToStorage(updatedProjects);
+    this.projectsSubject.next(updatedProjects);
   }
 }

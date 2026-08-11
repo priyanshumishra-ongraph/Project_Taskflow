@@ -1,8 +1,8 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Task } from '../models/task.model';
-import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
-import { debounceTime, switchMap, map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { debounceTime, map } from 'rxjs/operators';
 import { ProjectService } from './project.service';
 import { environment } from '../../environments/environment';
 
@@ -13,6 +13,7 @@ export class TaskService {
   private http = inject(HttpClient);
   private projectService = inject(ProjectService);
   private apiUrl = `${environment.apiUrl}/tasks`;
+  private readonly storageKey = 'taskflow_tasks';
   
   private tasksSubject = new BehaviorSubject<Task[]>([]);
   public tasks$: Observable<Task[]> = this.tasksSubject.asObservable();
@@ -28,32 +29,68 @@ export class TaskService {
   private statusSubject = new BehaviorSubject<string>('');
   private assigneeSubject = new BehaviorSubject<string>('');
   private prioritySubject = new BehaviorSubject<string>('');
+  
+  // Internal behavior subject for raw local storage tasks
+  private localTasksSubject = new BehaviorSubject<Task[]>([]);
 
   constructor() {
+    this.initLocalStorage();
     this.initTaskStream();
+  }
+  
+  private initLocalStorage() {
+    const stored = localStorage.getItem(this.storageKey);
+    if (stored) {
+      this.localTasksSubject.next(JSON.parse(stored));
+    } else {
+      // Fetch from API once, store, and populate localTasksSubject
+      this.http.get<{data: Task[]}>(this.apiUrl).subscribe({
+        next: (res) => {
+          this.saveToStorage(res.data);
+          this.localTasksSubject.next(res.data);
+        },
+        error: (err) => {
+          console.error("Failed to load initial tasks from API:", err);
+          this.localTasksSubject.next([]);
+        }
+      });
+    }
+  }
+  
+  private saveToStorage(tasks: Task[]) {
+    localStorage.setItem(this.storageKey, JSON.stringify(tasks));
   }
 
   private initTaskStream() {
     combineLatest([
+      this.localTasksSubject,
       this.searchSubject,
       this.statusSubject,
       this.assigneeSubject,
       this.prioritySubject,
       this.projectService.selectedProjectId$
     ]).pipe(
-      debounceTime(300),
-      switchMap(([q, status, assignee, priority, projectId]) => {
-        let params = new HttpParams();
+      debounceTime(100),
+      map(([tasks, q, status, assignee, priority, projectId]) => {
+        let filteredTasks = tasks;
         
-        if (q) params = params.set('q', q);
-        if (status) params = params.set('status', status);
-        if (assignee) params = params.set('assignee_ids_like', assignee);
-        if (priority) params = params.set('priority', priority);
-        if (projectId) params = params.set('project_id', projectId);
-        
-        return this.http.get<{data: Task[]}>(this.apiUrl, { params }).pipe(
-          map(res => res.data)
-        );
+        if (q) {
+          const lowerQ = q.toLowerCase();
+          filteredTasks = filteredTasks.filter(t => t.title?.toLowerCase().includes(lowerQ) || t.description?.toLowerCase().includes(lowerQ));
+        }
+        if (status) {
+          filteredTasks = filteredTasks.filter(t => t.status === status);
+        }
+        if (assignee) {
+          filteredTasks = filteredTasks.filter(t => t.assignee_ids?.includes(assignee) || t.assignee_id === assignee);
+        }
+        if (priority) {
+          filteredTasks = filteredTasks.filter(t => t.priority === priority);
+        }
+        if (projectId) {
+          filteredTasks = filteredTasks.filter(t => t.project_id === projectId);
+        }
+        return filteredTasks;
       })
     ).subscribe({
       next: (tasksData) => {
@@ -106,8 +143,7 @@ export class TaskService {
           };
         });
         this.tasksSubject.next(parsedTasks);
-      },
-      error: (err) => console.error("Failed to load tasks:", err)
+      }
     });
   }
 
@@ -128,7 +164,7 @@ export class TaskService {
   }
 
   loadTasks() {
-    this.searchSubject.next(this.searchSubject.value);
+    this.localTasksSubject.next(this.localTasksSubject.value);
   }
 
   clearTasks() {
@@ -136,8 +172,8 @@ export class TaskService {
   }
 
   addTask(newTask: Partial<Task>) {
-    const task: Partial<Task> = {
-      // Don't assign an ID here; backend creates UUIDs
+    const task: Task = {
+      id: `task_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
       title: newTask.title || 'Untitled Task',
       description: newTask.description || '',
       status: newTask.status || 'To Do',
@@ -148,25 +184,33 @@ export class TaskService {
       creator_id: 'usr_1',
       created_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       ...newTask
-    };
+    } as Task;
     
-    // Explicitly delete frontend computed fields that shouldn't persist in db.json/backend
+    // Explicitly delete frontend computed fields that shouldn't persist in storage
     delete (task as any).assignee_names;
     delete (task as any).assignee_initials_list;
     delete (task as any).creator_name;
     delete (task as any).progress_label;
     delete (task as any).progress_stats;
     delete (task as any).progress_bar_fill;
-    delete (task as any).id;
 
-    this.http.post<{data: Task}>(this.apiUrl, task).subscribe(() => this.loadTasks());
+    const currentTasks = this.localTasksSubject.value;
+    const updatedTasks = [...currentTasks, task];
+    this.saveToStorage(updatedTasks);
+    this.localTasksSubject.next(updatedTasks);
   }
 
   updateTask(id: string, updates: Partial<Task>) {
-    this.http.put<{data: Task}>(`${this.apiUrl}/${id}`, updates).subscribe(() => this.loadTasks());
+    const currentTasks = this.localTasksSubject.value;
+    const updatedTasks = currentTasks.map(t => t.id === id ? { ...t, ...updates } : t);
+    this.saveToStorage(updatedTasks);
+    this.localTasksSubject.next(updatedTasks);
   }
 
   deleteTask(id: string) {
-    this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe(() => this.loadTasks());
+    const currentTasks = this.localTasksSubject.value;
+    const updatedTasks = currentTasks.filter(t => t.id !== id);
+    this.saveToStorage(updatedTasks);
+    this.localTasksSubject.next(updatedTasks);
   }
 }
