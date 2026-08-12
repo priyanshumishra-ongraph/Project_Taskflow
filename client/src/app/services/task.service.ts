@@ -172,8 +172,7 @@ export class TaskService {
   }
 
   addTask(newTask: Partial<Task>) {
-    const task: Task = {
-      id: `task_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+    const task = {
       title: newTask.title || 'Untitled Task',
       description: newTask.description || '',
       status: newTask.status || 'To Do',
@@ -181,12 +180,10 @@ export class TaskService {
       due_date: newTask.due_date || new Date().toISOString(),
       project_id: newTask.project_id || this.projectService.getSelectedProjectId(),
       assignee_ids: newTask.assignee_ids && newTask.assignee_ids.length ? newTask.assignee_ids : ['usr_1'],
-      creator_id: 'usr_1',
-      created_at: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       ...newTask
-    } as Task;
+    };
     
-    // Explicitly delete frontend computed fields that shouldn't persist in storage
+    // Explicitly delete frontend computed fields that shouldn't persist
     delete (task as any).assignee_names;
     delete (task as any).assignee_initials_list;
     delete (task as any).creator_name;
@@ -194,23 +191,38 @@ export class TaskService {
     delete (task as any).progress_stats;
     delete (task as any).progress_bar_fill;
 
-    const currentTasks = this.localTasksSubject.value;
-    const updatedTasks = [...currentTasks, task];
-    this.saveToStorage(updatedTasks);
-    this.localTasksSubject.next(updatedTasks);
+    this.http.post<{data: Task}>(this.apiUrl, task).subscribe({
+      next: (res) => {
+        const currentTasks = this.localTasksSubject.value;
+        const updatedTasks = [...currentTasks, res.data];
+        this.saveToStorage(updatedTasks);
+        this.localTasksSubject.next(updatedTasks);
+      },
+      error: (err) => console.error("Failed to add task:", err)
+    });
   }
 
   updateTask(id: string, updates: Partial<Task>) {
-    const currentTasks = this.localTasksSubject.value;
-    const updatedTasks = currentTasks.map(t => t.id === id ? { ...t, ...updates } : t);
-    this.saveToStorage(updatedTasks);
-    this.localTasksSubject.next(updatedTasks);
+    this.http.put<{data: Task}>(`${this.apiUrl}/${id}`, updates).subscribe({
+      next: (res) => {
+        const currentTasks = this.localTasksSubject.value;
+        const updatedTasks = currentTasks.map(t => t.id === id ? res.data : t);
+        this.saveToStorage(updatedTasks);
+        this.localTasksSubject.next(updatedTasks);
+      },
+      error: (err) => console.error("Failed to update task:", err)
+    });
   }
 
   deleteTask(id: string) {
-    const currentTasks = this.localTasksSubject.value;
-    const updatedTasks = currentTasks.filter(t => t.id !== id);
-    this.saveToStorage(updatedTasks);
-    this.localTasksSubject.next(updatedTasks);
+    this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe({
+      next: () => {
+        const currentTasks = this.localTasksSubject.value;
+        const updatedTasks = currentTasks.filter(t => t.id !== id);
+        this.saveToStorage(updatedTasks);
+        this.localTasksSubject.next(updatedTasks);
+      },
+      error: (err) => console.error("Failed to delete task:", err)
+    });
   }
 }

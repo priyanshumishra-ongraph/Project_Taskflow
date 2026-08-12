@@ -55,16 +55,19 @@ export class ProjectService {
   }
 
   addProject(name: string) {
-    const newProject: Project = {
-      id: `proj_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+    const payload = {
       name,
       description: ''
     };
     
-    const currentProjects = this.projectsSubject.value;
-    const updatedProjects = [...currentProjects, newProject];
-    
-    this.saveToStorage(updatedProjects);
-    this.projectsSubject.next(updatedProjects);
+    this.http.post<{data: Project}>(this.apiUrl, payload).subscribe({
+      next: (res) => {
+        const currentProjects = this.projectsSubject.value;
+        const updatedProjects = [...currentProjects, res.data];
+        this.saveToStorage(updatedProjects);
+        this.projectsSubject.next(updatedProjects);
+      },
+      error: (err) => console.error("Failed to add project:", err)
+    });
   }
 }
