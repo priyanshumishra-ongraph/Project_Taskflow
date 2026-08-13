@@ -46,3 +46,5 @@
     *   *Deliverable:* projects API and fixed the folder structure and architecture
 *   **Day 19:** Add input validation (express-validator), central error-handling middleware, CORS and dotenv config.
     *   *Deliverable:* auth-protected API
+*   **Day 20:** Add auth routes: register / login (bcrypt + JWT); an auth middleware protecting the task routes.
+    *   *Deliverable: auth-protected API   
