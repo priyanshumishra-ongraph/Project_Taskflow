@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 import { ProjectService } from './project.service';
 import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ import { environment } from '../../environments/environment';
 export class TaskService {
   private http = inject(HttpClient);
   private projectService = inject(ProjectService);
+  private authService = inject(AuthService);
   private apiUrl = `${environment.apiUrl}/tasks`;
   private readonly storageKey = 'taskflow_tasks';
   
@@ -74,6 +76,12 @@ export class TaskService {
       map(([tasks, q, status, assignee, priority, projectId]) => {
         let filteredTasks = tasks;
         
+        // Task Visibility Rule based on Role
+        const currentUser = this.authService.currentUser();
+        if (currentUser && currentUser.role !== 'Admin') {
+           filteredTasks = filteredTasks.filter(t => t.assignee_ids?.includes(currentUser.id) || t.assignee_id === currentUser.id);
+        }
+
         if (q) {
           const lowerQ = q.toLowerCase();
           filteredTasks = filteredTasks.filter(t => t.title?.toLowerCase().includes(lowerQ) || t.description?.toLowerCase().includes(lowerQ));

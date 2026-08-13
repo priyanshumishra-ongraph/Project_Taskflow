@@ -24,3 +24,11 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
     return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
 };
+
+export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const user = (req as any).user;
+  if (!user || user.role !== 'Admin') {
+    return res.status(403).json({ error: 'Forbidden: Requires Admin role' });
+  }
+  next();
+};

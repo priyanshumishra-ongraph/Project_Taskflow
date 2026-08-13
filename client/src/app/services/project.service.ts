@@ -7,6 +7,7 @@ export interface Project {
   id: string;
   name: string;
   description: string;
+  owner_id?: string;
 }
 
 @Injectable({
@@ -54,10 +55,11 @@ export class ProjectService {
     return this.selectedProjectIdSubject.value;
   }
 
-  addProject(name: string) {
+  addProject(name: string, owner_id?: string) {
     const payload = {
       name,
-      description: ''
+      description: '',
+      owner_id
     };
     
     this.http.post<{data: Project}>(this.apiUrl, payload).subscribe({
@@ -68,6 +70,34 @@ export class ProjectService {
         this.projectsSubject.next(updatedProjects);
       },
       error: (err) => console.error("Failed to add project:", err)
+    });
+  }
+
+  updateProject(id: string, payload: Partial<Project>) {
+    this.http.put<{data: Project}>(`${this.apiUrl}/${id}`, payload).subscribe({
+      next: (res) => {
+        const currentProjects = this.projectsSubject.value;
+        const updatedProjects = currentProjects.map(p => p.id === id ? res.data : p);
+        this.saveToStorage(updatedProjects);
+        this.projectsSubject.next(updatedProjects);
+      },
+      error: (err) => console.error("Failed to update project:", err)
+    });
+  }
+
+  deleteProject(id: string) {
+    this.http.delete(`${this.apiUrl}/${id}`).subscribe({
+      next: () => {
+        const currentProjects = this.projectsSubject.value;
+        const updatedProjects = currentProjects.filter(p => p.id !== id);
+        this.saveToStorage(updatedProjects);
+        this.projectsSubject.next(updatedProjects);
+        
+        if (this.getSelectedProjectId() === id) {
+           this.setSelectedProject(updatedProjects.length > 0 ? updatedProjects[0].id : '');
+        }
+      },
+      error: (err) => console.error("Failed to delete project:", err)
     });
   }
 }

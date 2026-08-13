@@ -1,0 +1,258 @@
+<div class="admin-container">
+  <div class="admin-header">
+    <h2>Admin Dashboard</h2>
+    <div class="admin-nav">
+      <button class="nav-btn" [class.active]="activeTab === 'dashboard'" (click)="activeTab = 'dashboard'">Dashboard</button>
+      <button class="nav-btn" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">Users</button>
+      <button class="nav-btn" [class.active]="activeTab === 'projects'" (click)="activeTab = 'projects'">Projects</button>
+      <button class="nav-btn" [class.active]="activeTab === 'assign'" (click)="activeTab = 'assign'">Assign Task</button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="activeTab === 'dashboard'">
+    <!-- Task Progress Overview Card -->
+    <mat-card class="admin-card progress-card">
+      <mat-card-header>
+        <mat-card-title>Task Progress Overview</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="table-container">
+          <table class="progress-table">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Assignee</th>
+                <th>Status</th>
+                <th>Progress</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let task of taskService.tasks$ | async">
+                <td>{{ task.title }}</td>
+                <td>{{ task.assignee_names?.join(', ') || 'Unassigned' }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="task.status.toLowerCase().replace(' ', '-')">
+                    {{ task.status }}
+                  </span>
+                </td>
+                <td>
+                  <div class="progress-bar-container">
+                    <div class="progress-fill" [style.width.%]="task.progress_bar_fill || 0"></div>
+                  </div>
+                  <span class="progress-text">{{ task.progress_bar_fill || 0 }}%</span>
+                </td>
+              </tr>
+              <tr *ngIf="(taskService.tasks$ | async)?.length === 0">
+                <td colspan="4" class="no-data">No tasks found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'users'">
+    <mat-card class="admin-card">
+      <mat-card-header>
+        <mat-card-title>User Directory</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="table-container">
+          <table class="progress-table user-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Password </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of usersList">
+                <td style="font-weight: 500;">{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="user.role === 'Admin' ? 'completed' : 'to-do'">
+                    {{ user.role }}
+                  </span>
+                </td>
+                <td><code style="background: #f1f3f5; padding: 2px 6px; border-radius: 4px;">{{ user.password_plain || 'N/A' }}</code></td>
+              </tr>
+              <tr *ngIf="usersList.length === 0">
+                <td colspan="4" class="no-data">Loading users...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'projects'">
+    <!-- Create Project Card -->
+    <mat-card class="admin-card project-card">
+      <mat-card-header>
+        <mat-card-title>Create New Project</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div *ngIf="projectSuccessMessage" class="success-alert">
+          {{ projectSuccessMessage }}
+        </div>
+
+        <form [formGroup]="projectForm" (ngSubmit)="onSubmitProject()" class="admin-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Project Name</mat-label>
+            <input matInput formControlName="name" placeholder="E.g. Q4 Marketing">
+            <mat-error *ngIf="projectForm.get('name')?.hasError('required')">
+              Name is required
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Assign Project To (Optional)</mat-label>
+            <mat-select formControlName="owner_id">
+              <mat-option value="">Unassigned</mat-option>
+              <mat-option *ngFor="let u of taskService.users()" [value]="u.id">
+                {{ u.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="actions">
+            <button mat-flat-button color="accent" type="submit" [disabled]="projectForm.invalid">Create Project</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </ng-container>
+
+  <ng-container *ngIf="activeTab === 'assign'">
+    <!-- Task Assignment Card -->
+    <mat-card class="admin-card">
+      <mat-card-header>
+        <mat-card-title>Assign Task</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div *ngIf="successMessage" class="success-alert">
+          {{ successMessage }}
+        </div>
+
+        <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="custom-admin-form">
+          <!-- Project Selection -->
+          <div class="form-section">
+            <label>Project <span class="required">*</span></label>
+            <select formControlName="project_id" class="input-block">
+              <option value="" disabled>Select Project</option>
+              <option *ngFor="let p of projectService.projects$ | async" [value]="p.id">
+                {{ p.name }}
+              </option>
+            </select>
+          </div>
+
+          <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+            <div class="form-section" style="flex: 1; margin-bottom: 0;">
+              <label>Priority</label>
+              <select formControlName="priority" class="input-block">
+                <option value="Urgent">Urgent</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <div class="form-section" style="flex: 1; margin-bottom: 0;">
+              <label>Due</label>
+              <input type="date" formControlName="due_date" class="input-block">
+            </div>
+            <div class="form-section" style="flex: 1; margin-bottom: 0;">
+              <label>Status</label>
+              <select formControlName="status" class="input-block">
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Testing">Testing</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Title -->
+          <div class="form-section">
+            <label>Title <span class="required">*</span></label>
+            <input type="text" formControlName="title" class="input-block" placeholder="E.g. Fix login bug">
+          </div>
+
+          <!-- TaskList -->
+          <div class="form-section">
+            <div class="section-header">
+              <div class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+                TaskList
+              </div>
+              <div class="section-meta">{{ completedSubtasksCount }}/{{ taskForm.get('subtasks')?.value?.length || 0 }} &bull; {{ subtasksPercentage }}%</div>
+            </div>
+            <div class="subtask-item" *ngFor="let subtask of taskForm.get('subtasks')?.value">
+              <input type="checkbox" class="radio-custom" [checked]="subtask.is_completed" (change)="toggleSubtask(subtask.id)">
+              <span [style.text-decoration]="subtask.is_completed ? 'line-through' : 'none'">{{ subtask.title }}</span>
+            </div>
+            <div class="add-subtask-wrapper">
+              <input type="text" [(ngModel)]="newSubtaskTitle" [ngModelOptions]="{standalone: true}" (keydown.enter)="$event.preventDefault(); addSubtask()" placeholder="Add a subtask...">
+              <button type="button" class="btn-add" (click)="addSubtask()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                Add
+              </button>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-section">
+            <label>Description</label>
+            <textarea formControlName="description" class="input-block textarea-tall" placeholder="Add details..."></textarea>
+          </div>
+
+          <!-- Assignees -->
+          <div class="form-section">
+            <label>Assignees <span class="required">*</span></label>
+            <p class="help-text">Select team members to assign this task to.</p>
+            <div class="assignees-grid">
+              <label class="assignee-item" *ngFor="let user of taskService.users()">
+                <input type="checkbox" class="radio-custom" [checked]="isAssigneeSelected(user.id)" (change)="toggleAssignee(user.id)"> 
+                <span>{{ user.name }}</span> 
+                <span class="role">{{ user.role || 'Member' }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Comments -->
+          <div class="form-section">
+            <div class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Comments <span class="count">({{ taskForm.get('comments')?.value?.length || 0 }})</span>
+            </div>
+            <ng-container *ngIf="taskForm.get('comments')?.value?.length; else noComments">
+              <div *ngFor="let comment of taskForm.get('comments')?.value" style="margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+                <div style="font-weight: 600; font-size: 0.85rem; color: #334155; margin-bottom: 4px;">{{ getUserName(comment.user_id) }}</div>
+                <div style="font-size: 0.9rem; color: #475569; margin-bottom: 8px;">{{ comment.content }}</div>
+                <div style="font-size: 0.75rem; color: #94a3b8;">{{ comment.created_at | date:'MMM d, y, h:mm a' }}</div>
+              </div>
+            </ng-container>
+            <ng-template #noComments>
+              <p class="no-messages">No messages yet.</p>
+            </ng-template>
+            <div class="comment-box" style="margin-top: 16px;">
+              <textarea [(ngModel)]="newCommentContent" [ngModelOptions]="{standalone: true}" (keydown.control.enter)="addComment()" placeholder="Write a comment..."></textarea>
+              <button type="button" class="btn-send" (click)="addComment()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="actions" style="border-top: 1px solid #e2e8f0; padding-top: 16px; margin-top: 24px;">
+            <button class="btn-link" type="button" (click)="goToBoard()">Back to Board</button>
+            <button class="btn-solid-blue" type="submit" [disabled]="taskForm.invalid">Assign Task</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </ng-container>
+</div>

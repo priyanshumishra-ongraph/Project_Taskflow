@@ -1,9 +1,12 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { validateRequest } from '../middleware/validate';
-import { register, login } from '../controllers/auth';
+import { register, login, getUsers } from '../controllers/auth';
+import { requireAdmin } from '../middleware/auth';
 
 const router = Router();
+
+router.get('/users', requireAdmin, getUsers);
 
 router.post(
   '/register',

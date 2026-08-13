@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { passwordStrengthValidator, passwordMatchValidator } from '../../shared/validators/password.validator';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-signup',
@@ -14,8 +16,10 @@ import { passwordStrengthValidator, passwordMatchValidator } from '../../shared/
 export class SignupComponent {
   fb = inject(FormBuilder);
   router = inject(Router);
+  http = inject(HttpClient);
   
   submittedSuccessfully = false;
+  errorMessage = '';
   showPassword = false;
   showConfirmPassword = false;
 
@@ -43,19 +47,28 @@ export class SignupComponent {
 
   onSubmit() {
     if (this.signupForm.valid) {
-      console.log('Form Submitted!', this.signupForm.value);
-      this.submittedSuccessfully = true;
+      this.errorMessage = '';
+      const formValue = this.signupForm.value;
       
-      // Reset the form back to pristine state
-      this.signupForm.reset();
-      
-      // Remove success message and redirect after 1.5 seconds
-      setTimeout(() => {
-        this.submittedSuccessfully = false;
-        this.router.navigate(['/login']);
-      }, 1500);
+      this.http.post(`${environment.apiUrl}/auth/register`, {
+        name: formValue.username,
+        email: formValue.email,
+        password: formValue.password
+      }).subscribe({
+        next: () => {
+          this.submittedSuccessfully = true;
+          this.signupForm.reset();
+          
+          setTimeout(() => {
+            this.submittedSuccessfully = false;
+            this.router.navigate(['/login']);
+          }, 1500);
+        },
+        error: (err) => {
+          this.errorMessage = err.error?.error || 'Signup failed. Please try again.';
+        }
+      });
     } else {
-      // Mark all fields as touched so errors display if they try to submit an empty form
       this.signupForm.markAllAsTouched();
     }
   }

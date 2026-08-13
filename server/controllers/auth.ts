@@ -18,6 +18,7 @@ const initUsers = async () => {
     name: 'John Doe',
     email: 'john.doe@example.com',
     password: hashedPassword,
+    role: 'Admin'
   });
 };
 initUsers();
@@ -39,14 +40,15 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       name,
       email,
       password: hashedPassword,
+      role: 'Member'
     };
     users.push(newUser);
 
-    const token = jwt.sign({ id: newUser.id, email: newUser.email }, JWT_SECRET, {
+    const token = jwt.sign({ id: newUser.id, email: newUser.email, role: newUser.role }, JWT_SECRET, {
       expiresIn: '1d',
     });
 
-    res.status(201).json({ data: { user: { id: newUser.id, name, email }, token } });
+    res.status(201).json({ data: { user: { id: newUser.id, name, email, role: newUser.role }, token } });
   } catch (err) {
     next(err);
   }
@@ -66,11 +68,26 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, {
       expiresIn: '1d',
     });
 
-    res.status(200).json({ data: { user: { id: user.id, name: user.name, email }, token } });
+    res.status(200).json({ data: { user: { id: user.id, name: user.name, email, role: user.role }, token } });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const publicUsers = users.map(u => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      password_plain: 'password123' // Mock only, per requirements
+    }));
+    res.status(200).json({ data: publicUsers });
   } catch (err) {
     next(err);
   }

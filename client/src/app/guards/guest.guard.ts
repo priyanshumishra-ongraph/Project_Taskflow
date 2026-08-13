@@ -2,17 +2,16 @@ import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const guestGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
   if (authService.isLoggedIn()) {
-    return true;
+    if (authService.isAdmin()) {
+      return router.createUrlTree(['/admin']);
+    }
+    return router.createUrlTree(['/board']);
   }
   
-  if (state.url.startsWith('/admin')) {
-    return router.createUrlTree(['/admin-login']);
-  }
-  
-  return router.createUrlTree(['/login']);
+  return true;
 };

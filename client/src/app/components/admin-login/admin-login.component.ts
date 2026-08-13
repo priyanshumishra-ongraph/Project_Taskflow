@@ -7,13 +7,13 @@ import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-admin-login',
   standalone: true,
   imports: [RouterLink, FormsModule, CommonModule],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  templateUrl: './admin-login.component.html',
+  styleUrl: './admin-login.component.css'
 })
-export class LoginComponent {
+export class AdminLoginComponent {
   authService = inject(AuthService);
   router = inject(Router);
   http = inject(HttpClient);
@@ -31,13 +31,20 @@ export class LoginComponent {
     if (event) event.preventDefault();
     this.errorMessage = '';
     
-    this.http.post<{data: {token: string}}>(`${environment.apiUrl}/auth/login`, {
+    this.http.post<{data: {token: string, user: {role: string}}}>(`${environment.apiUrl}/auth/login`, {
       email: this.email,
       password: this.password
     }).subscribe({
       next: (res) => {
+        if (res.data.user.role !== 'Admin') {
+          this.errorMessage = 'Invalid credentials';
+          return;
+        }
+        
         this.authService.login(res.data.token);
-        this.router.navigate(['/board']);
+        
+        // Admin logins should redirect to /admin instead of /board
+        this.router.navigate(['/admin']);
       },
       error: (err) => {
         this.errorMessage = err.error?.error || 'Login failed';
