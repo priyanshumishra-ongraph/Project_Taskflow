@@ -8,9 +8,13 @@ import taskRoutes from "./routes/tasks";
 import projectRoutes from "./routes/projects";
 import { errorHandler } from "./middleware/errorHandler";
 import { requireAuth } from "./middleware/auth";
+import { connectDB } from "./config/db";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Connect to MongoDB
+connectDB();
 
 // Middleware
 app.use(cors());
