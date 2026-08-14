@@ -47,7 +47,8 @@
 *   **Day 19:** Add input validation (express-validator), central error-handling middleware, CORS and dotenv config.
     *   *Deliverable:* auth-protected API
 *   **Day 20:** Add auth routes: register / login (bcrypt + JWT); an auth middleware protecting the task routes.
-    *   *Deliverable: auth-protected API  
+    *   *Deliverable:* auth-protected API  
 *   **Day 21:** Set up MongoDB (Atlas) + Compass; create the DB; add the connection string to .env (gitignored).
-    *   *Deliverable: DB + connection   
- 
+    *   *Deliverable:* DB + connection   
+*   **Day 22:** Define Mongoose models: User, Project, Task (with refs, timestamps & validation).
+    *   *Deliverable:* schemas / models
