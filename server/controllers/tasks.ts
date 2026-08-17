@@ -1,81 +1,75 @@
 import { Request, Response, NextFunction } from 'express';
-import crypto from 'crypto';
+import Task from '../models/Task';
 
-export interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status: string;
-  priority: string;
-  due_date?: string;
-  [key: string]: any;
-}
-
-let tasks: Task[] = [];
-
-export const getTasks = (req: Request, res: Response, next: NextFunction) => {
+export const getTasks = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.status(200).json({ data: tasks });
+    const tasks = await Task.find();
+    const formattedTasks = tasks.map(t => {
+      const obj = t.toObject();
+      return { ...obj, id: obj._id };
+    });
+    res.status(200).json({ data: formattedTasks });
   } catch (error) {
     next(error);
   }
 };
 
-export const createTask = (req: Request, res: Response, next: NextFunction) => {
+export const createTask = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { title } = req.body;
+    const { title, description, status, priority, due_date, project_id, assignee_ids, subtasks, comments } = req.body;
     
     // Validation is handled by express-validator middleware
 
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      ...req.body,
+    const newTask = await Task.create({
       title,
-      status: req.body.status || 'To Do',
-      priority: req.body.priority || 'Medium',
-    };
+      description,
+      status: status || 'To Do',
+      priority: priority || 'Medium',
+      due_date,
+      project_id,
+      assignee_ids,
+      subtasks,
+      comments,
+      creator_id: (req as any).user?.id
+    });
 
-    tasks.push(newTask);
-    res.status(201).json({ data: newTask });
+    const obj = newTask.toObject();
+    res.status(201).json({ data: { ...obj, id: obj._id } });
   } catch (error) {
     next(error);
   }
 };
 
-export const updateTask = (req: Request, res: Response, next: NextFunction) => {
+export const updateTask = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
 
-    const taskIndex = tasks.findIndex(t => t.id === id);
-    const existingTask = tasks[taskIndex];
+    const updatedTask = await (Task as any).findByIdAndUpdate(
+      id,
+      { $set: req.body as any },
+      { new: true, runValidators: true }
+    );
     
-    if (taskIndex === -1 || !existingTask) {
+    if (!updatedTask) {
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    const updatedTask: Task = {
-      ...existingTask,
-      ...req.body,
-      id: existingTask.id // prevent id overwrite
-    };
-
-    tasks[taskIndex] = updatedTask;
-    res.status(200).json({ data: updatedTask });
+    const obj = updatedTask.toObject();
+    res.status(200).json({ data: { ...obj, id: obj._id } });
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteTask = (req: Request, res: Response, next: NextFunction) => {
+export const deleteTask = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const taskIndex = tasks.findIndex(t => t.id === id);
     
-    if (taskIndex === -1) {
+    const deletedTask = await (Task as any).findByIdAndDelete(id);
+    if (!deletedTask) {
       return res.status(404).json({ error: 'Task not found' });
     }
 
-    tasks.splice(taskIndex, 1);
     res.status(200).json({ data: { message: 'Task deleted successfully' } });
   } catch (error) {
     next(error);

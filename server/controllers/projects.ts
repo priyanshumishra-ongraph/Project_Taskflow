@@ -1,80 +1,69 @@
 import { Request, Response, NextFunction } from 'express';
-import crypto from 'crypto';
+import Project from '../models/Project';
 
-export interface Project {
-  id: string;
-  name: string;
-  description?: string;
-  status: string;
-  created_at: string;
-  [key: string]: any;
-}
-
-let projects: Project[] = [];
-
-export const getProjects = (req: Request, res: Response, next: NextFunction) => {
+export const getProjects = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.status(200).json({ data: projects });
+    const projects = await (Project as any).find();
+    
+    const formattedProjects = projects.map((p: any) => {
+      const obj = p.toObject();
+      return { ...obj, id: obj._id };
+    });
+    res.status(200).json({ data: formattedProjects });
   } catch (error) {
     next(error);
   }
 };
 
-export const createProject = (req: Request, res: Response, next: NextFunction) => {
+export const createProject = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { name } = req.body;
+    const { name, description, status } = req.body;
     
     // Validation is handled by express-validator middleware
 
-    const newProject: Project = {
-      id: crypto.randomUUID(),
-      ...req.body, // spread all fields
+    const newProject = await Project.create({
       name,
-      status: req.body.status || 'Active',
-      created_at: new Date().toISOString()
-    };
+      description,
+      status: status || 'Active',
+    });
 
-    projects.push(newProject);
-    res.status(201).json({ data: newProject });
+    const obj = newProject.toObject();
+    res.status(201).json({ data: { ...obj, id: obj._id } });
   } catch (error) {
     next(error);
   }
 };
 
-export const updateProject = (req: Request, res: Response, next: NextFunction) => {
+export const updateProject = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
 
-    const projectIndex = projects.findIndex(p => p.id === id);
-    const existingProject = projects[projectIndex];
+    const updatedProject = await (Project as any).findByIdAndUpdate(
+      id,
+      { $set: req.body as any },
+      { new: true, runValidators: true }
+    );
     
-    if (projectIndex === -1 || !existingProject) {
+    if (!updatedProject) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    const updatedProject: Project = {
-      ...existingProject,
-      ...req.body,
-      id: existingProject.id
-    };
-
-    projects[projectIndex] = updatedProject;
-    res.status(200).json({ data: updatedProject });
+    const obj = updatedProject.toObject();
+    res.status(200).json({ data: { ...obj, id: obj._id } });
   } catch (error) {
     next(error);
   }
 };
 
-export const deleteProject = (req: Request, res: Response, next: NextFunction) => {
+export const deleteProject = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const projectIndex = projects.findIndex(p => p.id === id);
     
-    if (projectIndex === -1) {
+    const deletedProject = await (Project as any).findByIdAndDelete(id);
+    if (!deletedProject) {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    projects.splice(projectIndex, 1);
     res.status(200).json({ data: { message: 'Project deleted successfully' } });
   } catch (error) {
     next(error);
