@@ -47,7 +47,7 @@ export const updateTask = async (req: Request, res: Response, next: NextFunction
     const updatedTask = await (Task as any).findByIdAndUpdate(
       id,
       { $set: req.body as any },
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
     
     if (!updatedTask) {

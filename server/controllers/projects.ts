@@ -41,7 +41,7 @@ export const updateProject = async (req: Request, res: Response, next: NextFunct
     const updatedProject = await (Project as any).findByIdAndUpdate(
       id,
       { $set: req.body as any },
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
     
     if (!updatedProject) {
