@@ -52,3 +52,9 @@
     *   *Deliverable:* DB + connection   
 *   **Day 22:** Define Mongoose models: User, Project, Task (with refs, timestamps & validation).
     *   *Deliverable:* schemas / models
+*   **Day 23:** Replace the in-memory store with MongoDB across all routes; handle not-found & DB errors.
+    *   *Deliverable:* persistent API   
+*   **Day 24:** Write API tests (Jest + Supertest) for tasks & auth (happy + error paths); fix the bugs you find.
+    *   *Deliverable:* passing tests
+*   **Day 25:** Clean the repo and deploy the API to Render with the DB on Atlas; verify live endpoints.
+    *   *Deliverable:* live API URL         
