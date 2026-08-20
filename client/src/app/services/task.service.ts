@@ -15,7 +15,6 @@ export class TaskService {
   private projectService = inject(ProjectService);
   private authService = inject(AuthService);
   private apiUrl = `${environment.apiUrl}/tasks`;
-  private readonly storageKey = 'taskflow_tasks';
   
   private tasksSubject = new BehaviorSubject<Task[]>([]);
   public tasks$: Observable<Task[]> = this.tasksSubject.asObservable();
@@ -32,35 +31,24 @@ export class TaskService {
   private assigneeSubject = new BehaviorSubject<string>('');
   private prioritySubject = new BehaviorSubject<string>('');
   
-  // Internal behavior subject for raw local storage tasks
+  // Internal behavior subject for raw tasks from API
   private localTasksSubject = new BehaviorSubject<Task[]>([]);
 
   constructor() {
-    this.initLocalStorage();
+    this.fetchTasks();
     this.initTaskStream();
   }
   
-  private initLocalStorage() {
-    const stored = localStorage.getItem(this.storageKey);
-    if (stored) {
-      this.localTasksSubject.next(JSON.parse(stored));
-    } else {
-      // Fetch from API once, store, and populate localTasksSubject
-      this.http.get<{data: Task[]}>(this.apiUrl).subscribe({
-        next: (res) => {
-          this.saveToStorage(res.data);
-          this.localTasksSubject.next(res.data);
-        },
-        error: (err) => {
-          console.error("Failed to load initial tasks from API:", err);
-          this.localTasksSubject.next([]);
-        }
-      });
-    }
-  }
-  
-  private saveToStorage(tasks: Task[]) {
-    localStorage.setItem(this.storageKey, JSON.stringify(tasks));
+  private fetchTasks() {
+    this.http.get<{data: Task[]}>(this.apiUrl).subscribe({
+      next: (res) => {
+        this.localTasksSubject.next(res.data);
+      },
+      error: (err) => {
+        console.error("Failed to load tasks from API:", err);
+        this.localTasksSubject.next([]);
+      }
+    });
   }
 
   private initTaskStream() {
@@ -172,7 +160,7 @@ export class TaskService {
   }
 
   loadTasks() {
-    this.localTasksSubject.next(this.localTasksSubject.value);
+    this.fetchTasks();
   }
 
   clearTasks() {
@@ -202,9 +190,7 @@ export class TaskService {
     this.http.post<{data: Task}>(this.apiUrl, task).subscribe({
       next: (res) => {
         const currentTasks = this.localTasksSubject.value;
-        const updatedTasks = [...currentTasks, res.data];
-        this.saveToStorage(updatedTasks);
-        this.localTasksSubject.next(updatedTasks);
+        this.localTasksSubject.next([...currentTasks, res.data]);
       },
       error: (err) => console.error("Failed to add task:", err)
     });
@@ -215,7 +201,6 @@ export class TaskService {
       next: (res) => {
         const currentTasks = this.localTasksSubject.value;
         const updatedTasks = currentTasks.map(t => t.id === id ? res.data : t);
-        this.saveToStorage(updatedTasks);
         this.localTasksSubject.next(updatedTasks);
       },
       error: (err) => console.error("Failed to update task:", err)
@@ -227,7 +212,6 @@ export class TaskService {
       next: () => {
         const currentTasks = this.localTasksSubject.value;
         const updatedTasks = currentTasks.filter(t => t.id !== id);
-        this.saveToStorage(updatedTasks);
         this.localTasksSubject.next(updatedTasks);
       },
       error: (err) => console.error("Failed to delete task:", err)

@@ -58,3 +58,5 @@
     *   *Deliverable:* passing tests
 *   **Day 25:** Clean the repo and deploy the API to Render with the DB on Atlas; verify live endpoints.
     *   *Deliverable:* live API URL         
+*   **Day 26:** Point the Angular services at the deployed API; wire real auth (JWT storage + HTTP interceptor).
+    *   *Deliverable:* FE talks to live API
