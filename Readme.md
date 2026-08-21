@@ -60,3 +60,5 @@
     *   *Deliverable:* live API URL         
 *   **Day 26:** Point the Angular services at the deployed API; wire real auth (JWT storage + HTTP interceptor).
     *   *Deliverable:* FE talks to live API
+*   **Day 27:** Implement real task CRUD end-to-end against the live API; handle loading & error states.
+    *   *Deliverable:* tasks work live

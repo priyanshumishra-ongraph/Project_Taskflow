@@ -10,13 +10,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-board',
   standalone: true,
   imports: [
     CommonModule, TaskListComponent, FormsModule, DragDropModule,
-    MatFormFieldModule, MatSelectModule, MatInputModule, MatIconModule, MatButtonModule, MatButtonToggleModule
+    MatFormFieldModule, MatSelectModule, MatInputModule, MatIconModule, MatButtonModule, MatButtonToggleModule, MatProgressSpinnerModule
   ],
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css']

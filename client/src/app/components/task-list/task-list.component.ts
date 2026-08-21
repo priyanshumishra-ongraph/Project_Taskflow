@@ -90,7 +90,13 @@ export class TaskListComponent implements OnInit, OnDestroy {
     this.showModal = true;
   }
 
+  isSaving = false;
+  errorMessage = '';
+
   saveTask() {
+    this.isSaving = true;
+    this.errorMessage = '';
+
     // Recalculate progress stats
     const totalSubtasks = this.taskFormData.subtasks ? this.taskFormData.subtasks.length : 0;
     const completed = this.completedSubtasksCount;
@@ -112,12 +118,20 @@ export class TaskListComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (this.editingTaskId) {
-      this.taskService.updateTask(this.editingTaskId, this.taskFormData);
-    } else {
-      this.taskService.addTask(this.taskFormData);
-    }
-    this.closeModal();
+    const obs = this.editingTaskId 
+      ? this.taskService.updateTask(this.editingTaskId, this.taskFormData)
+      : this.taskService.addTask(this.taskFormData);
+
+    obs.subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.closeModal();
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.errorMessage = err.error?.error || 'Failed to save task';
+      }
+    });
   }
 
   toggleAssignee(userId: string) {
@@ -143,13 +157,20 @@ export class TaskListComponent implements OnInit, OnDestroy {
   
   onDelete(id: string) {
     if (confirm('Are you sure you want to delete this task?')) {
-      this.taskService.deleteTask(id);
+      this.taskService.deleteTask(id).subscribe({
+        error: (err) => alert('Failed to delete task: ' + (err.error?.error || err.message))
+      });
     }
   }
 
   updateTaskStatus(task: Task, newStatus: string) {
     if (newStatus && newStatus !== task.status) {
-      this.taskService.updateTask(task.id, { status: newStatus });
+      this.taskService.updateTask(task.id, { status: newStatus }).subscribe({
+        error: (err) => {
+          console.error("Failed to update status", err);
+          // Revert could be handled here if we tracked previous state
+        }
+      });
     }
   }
 
@@ -167,7 +188,12 @@ export class TaskListComponent implements OnInit, OnDestroy {
       if (this.statusColumn) {
         // The array is already mutated locally for instant UI update.
         // Now trigger the backend update.
-        this.taskService.updateTask(task.id, { status: this.statusColumn });
+        this.taskService.updateTask(task.id, { status: this.statusColumn }).subscribe({
+          error: (err) => {
+            console.error("Failed to update status on drop", err);
+            // Ideally revert the move on failure
+          }
+        });
       }
     }
   }

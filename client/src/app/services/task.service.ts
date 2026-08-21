@@ -2,7 +2,7 @@ import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Task } from '../models/task.model';
 import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { debounceTime, map, tap } from 'rxjs/operators';
 import { ProjectService } from './project.service';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
@@ -34,19 +34,27 @@ export class TaskService {
   // Internal behavior subject for raw tasks from API
   private localTasksSubject = new BehaviorSubject<Task[]>([]);
 
+  public isLoading = signal<boolean>(false);
+  public error = signal<string | null>(null);
+
   constructor() {
     this.fetchTasks();
     this.initTaskStream();
   }
   
   private fetchTasks() {
+    this.isLoading.set(true);
+    this.error.set(null); 
     this.http.get<{data: Task[]}>(this.apiUrl).subscribe({
       next: (res) => {
         this.localTasksSubject.next(res.data);
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error("Failed to load tasks from API:", err);
+        this.error.set(err.error?.error || 'Failed to load tasks.');
         this.localTasksSubject.next([]);
+        this.isLoading.set(false);
       }
     });
   }
@@ -167,7 +175,7 @@ export class TaskService {
     this.tasksSubject.next([]);
   }
 
-  addTask(newTask: Partial<Task>) {
+  addTask(newTask: Partial<Task>): Observable<Task> {
     const task = {
       title: newTask.title || 'Untitled Task',
       description: newTask.description || '',
@@ -187,34 +195,33 @@ export class TaskService {
     delete (task as any).progress_stats;
     delete (task as any).progress_bar_fill;
 
-    this.http.post<{data: Task}>(this.apiUrl, task).subscribe({
-      next: (res) => {
+    return this.http.post<{data: Task}>(this.apiUrl, task).pipe(
+      map(res => res.data),
+      tap(savedTask => {
         const currentTasks = this.localTasksSubject.value;
-        this.localTasksSubject.next([...currentTasks, res.data]);
-      },
-      error: (err) => console.error("Failed to add task:", err)
-    });
+        this.localTasksSubject.next([...currentTasks, savedTask]);
+      })
+    );
   }
 
-  updateTask(id: string, updates: Partial<Task>) {
-    this.http.put<{data: Task}>(`${this.apiUrl}/${id}`, updates).subscribe({
-      next: (res) => {
+  updateTask(id: string, updates: Partial<Task>): Observable<Task> {
+    return this.http.put<{data: Task}>(`${this.apiUrl}/${id}`, updates).pipe(
+      map(res => res.data),
+      tap(updatedTask => {
         const currentTasks = this.localTasksSubject.value;
-        const updatedTasks = currentTasks.map(t => t.id === id ? res.data : t);
-        this.localTasksSubject.next(updatedTasks);
-      },
-      error: (err) => console.error("Failed to update task:", err)
-    });
+        const newTasks = currentTasks.map(t => t.id === id ? updatedTask : t);
+        this.localTasksSubject.next(newTasks);
+      })
+    );
   }
 
-  deleteTask(id: string) {
-    this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe({
-      next: () => {
+  deleteTask(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => {
         const currentTasks = this.localTasksSubject.value;
-        const updatedTasks = currentTasks.filter(t => t.id !== id);
-        this.localTasksSubject.next(updatedTasks);
-      },
-      error: (err) => console.error("Failed to delete task:", err)
-    });
+        const newTasks = currentTasks.filter(t => t.id !== id);
+        this.localTasksSubject.next(newTasks);
+      })
+    );
   }
 }

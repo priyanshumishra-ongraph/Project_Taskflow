@@ -55,13 +55,22 @@
   </mat-form-field>
 </div>
 
-<section class="content board-columns" *ngIf="viewMode === 'board'" cdkDropListGroup style="display: flex; gap: 24px; overflow-x: auto; padding-bottom: 16px;">
+<div *ngIf="taskService.isLoading()" style="text-align: center; padding: 40px; color: #64748b;">
+  <mat-spinner diameter="40" style="margin: 0 auto 16px;"></mat-spinner>
+  <p>Loading tasks...</p>
+</div>
+
+<div *ngIf="taskService.error()" style="background: #fee2e2; color: #dc2626; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+  <strong>Error:</strong> {{ taskService.error() }}
+</div>
+
+<section class="content board-columns" *ngIf="!taskService.isLoading() && viewMode === 'board'" cdkDropListGroup style="display: flex; gap: 24px; overflow-x: auto; padding-bottom: 16px;">
   <div class="board-column" style="flex: 1; min-width: 300px;"><app-task-list statusColumn="To Do" dotColor="#94a3b8"></app-task-list></div>
   <div class="board-column" style="flex: 1; min-width: 300px;"><app-task-list statusColumn="In Progress" dotColor="#3b82f6"></app-task-list></div>
   <div class="board-column" style="flex: 1; min-width: 300px;"><app-task-list statusColumn="Testing" dotColor="#f59e0b"></app-task-list></div>
   <div class="board-column" style="flex: 1; min-width: 300px;"><app-task-list statusColumn="Completed" dotColor="#10b981"></app-task-list></div>
 </section>
 
-<section class="content list-view" *ngIf="viewMode === 'list'">
+<section class="content list-view" *ngIf="!taskService.isLoading() && viewMode === 'list'">
   <app-task-list></app-task-list>
 </section>
