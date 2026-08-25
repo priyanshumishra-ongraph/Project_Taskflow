@@ -180,3 +180,10 @@
   background-color: #e2e8f0;
   color: #0f172a;
 }
+
+.empty-projects-state {
+  padding: 16px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}

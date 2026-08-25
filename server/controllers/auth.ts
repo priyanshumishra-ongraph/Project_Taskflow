@@ -17,11 +17,14 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const userCount = await User.countDocuments();
+    const role = userCount === 0 ? 'Admin' : 'Member';
+
     const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
-      role: 'Member'
+      role
     });
 
     const token = jwt.sign({ id: newUser._id, email: newUser.email, role: newUser.role }, JWT_SECRET, {
@@ -76,10 +79,36 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
       id: u._id,
       name: u.name,
       email: u.email,
-      role: u.role,
-      password: u.password
+      role: u.role
     }));
     res.status(200).json({ data: publicUsers });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    const existingUser = await User.findOne({ email } as any);
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || 'Member'
+    });
+
+    res.status(201).json({ 
+      data: { id: newUser._id, name, email, role: newUser.role } 
+    });
   } catch (err) {
     next(err);
   }

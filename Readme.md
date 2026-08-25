@@ -62,3 +62,5 @@
     *   *Deliverable:* FE talks to live API
 *   **Day 27:** Implement real task CRUD end-to-end against the live API; handle loading & error states.
     *   *Deliverable:* tasks work live
+*   **Day 28:** Implement real project CRUD, basic pagination, and an Admin Dashboard with role-based access control and user creation.
+    *   *Deliverable:* Projects work live & Admin Dashboard

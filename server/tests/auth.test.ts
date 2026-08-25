@@ -36,11 +36,11 @@ describe('Auth API', () => {
 
       expect(res.status).toBe(201);
       expect(res.body.data.user.email).toBe('alice@test.com');
-      expect(res.body.data.user.role).toBe('Member');
+      expect(res.body.data.user.role).toBe('Admin');
       expect(res.body.data.token).toBeDefined();
 
       const inDb = await User.findOne({ email: 'alice@test.com' } as any);
-      expect(inDb).not.toBeNull();
+      expect(inDb?.role).toBe('Admin');
     });
 
     it('returns 400 when name is missing', async () => {

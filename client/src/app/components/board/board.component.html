@@ -1,7 +1,7 @@
 <header class="board-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
   <h2 style="margin: 0; font-size: 2rem; font-weight: 500;">Board</h2>
   <div class="header-controls" style="display: flex; gap: 16px; align-items: center;">
-    <mat-button-toggle-group [(ngModel)]="viewMode">
+    <mat-button-toggle-group [(ngModel)]="viewMode" hideSingleSelectionIndicator="true">
       <mat-button-toggle value="list">
         <mat-icon>list</mat-icon> List
       </mat-button-toggle>

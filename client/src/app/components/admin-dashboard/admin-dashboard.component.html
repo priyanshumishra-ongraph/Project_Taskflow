@@ -28,7 +28,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let task of taskService.tasks$ | async">
+              <tr *ngFor="let task of taskService.allTasks$ | async">
                 <td>{{ task.title }}</td>
                 <td>{{ task.assignee_names?.join(', ') || 'Unassigned' }}</td>
                 <td>
@@ -43,7 +43,7 @@
                   <span class="progress-text">{{ task.progress_bar_fill || 0 }}%</span>
                 </td>
               </tr>
-              <tr *ngIf="(taskService.tasks$ | async)?.length === 0">
+              <tr *ngIf="(taskService.allTasks$ | async)?.length === 0">
                 <td colspan="4" class="no-data">No tasks found.</td>
               </tr>
             </tbody>
@@ -54,6 +54,44 @@
   </ng-container>
 
   <ng-container *ngIf="activeTab === 'users'">
+    <!-- Create User Card -->
+    <mat-card class="admin-card project-card" style="margin-bottom: 24px;">
+      <mat-card-header>
+        <mat-card-title>Create New User</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div *ngIf="userSuccessMessage" class="success-alert">
+          {{ userSuccessMessage }}
+        </div>
+
+        <form [formGroup]="userForm" (ngSubmit)="onSubmitUser()" class="admin-form" style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <mat-form-field appearance="outline" style="flex: 1; min-width: 200px;">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" placeholder="John Doe">
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="flex: 1; min-width: 200px;">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" placeholder="john@example.com">
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="flex: 1; min-width: 200px;">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" formControlName="password" placeholder="Min 6 chars">
+          </mat-form-field>
+          <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+            <mat-label>Role</mat-label>
+            <mat-select formControlName="role">
+              <mat-option value="Member">Member</mat-option>
+              <mat-option value="Admin">Admin</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="actions" style="width: 100%; display: flex; justify-content: flex-end;">
+            <button mat-flat-button color="primary" type="submit" [disabled]="userForm.invalid">Create User</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
     <mat-card class="admin-card">
       <mat-card-header>
         <mat-card-title>User Directory</mat-card-title>
@@ -66,7 +104,6 @@
                 <th>Name</th>
                 <th>Username</th>
                 <th>Role</th>
-                <th>Password </th>
               </tr>
             </thead>
             <tbody>
@@ -78,10 +115,9 @@
                     {{ user.role }}
                   </span>
                 </td>
-                <td><code style="background: #f1f3f5; padding: 2px 6px; border-radius: 4px;">{{ user.password_plain || 'N/A' }}</code></td>
               </tr>
               <tr *ngIf="usersList.length === 0">
-                <td colspan="4" class="no-data">Loading users...</td>
+                <td colspan="3" class="no-data">Loading users...</td>
               </tr>
             </tbody>
           </table>

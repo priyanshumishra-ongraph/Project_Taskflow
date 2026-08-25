@@ -50,6 +50,10 @@
           </button>
         </mat-menu>
       </div>
+    } @empty {
+      <div class="empty-projects-state" *ngIf="!isCollapsed">
+        <p>No projects found.</p>
+      </div>
     }
   </nav>
 </aside>

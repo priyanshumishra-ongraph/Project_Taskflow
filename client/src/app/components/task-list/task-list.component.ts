@@ -31,8 +31,32 @@ export class TaskListComponent implements OnInit, OnDestroy {
       map(tasks => this.statusColumn ? tasks.filter(t => t.status === this.statusColumn) : tasks)
     ).subscribe(filteredTasks => {
       this.tasks = filteredTasks;
+      if (!this.statusColumn && this.currentPage > this.totalPages && this.totalPages > 0) {
+        this.currentPage = 1;
+      }
       this.cdr.detectChanges();
     });
+  }
+
+  currentPage = 1;
+  pageSize = 5;
+
+  get paginatedTasks(): Task[] {
+    if (this.statusColumn) return this.tasks;
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.tasks.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.tasks.length / this.pageSize) || 1;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) this.currentPage++;
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) this.currentPage--;
   }
 
   ngOnDestroy() {

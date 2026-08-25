@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface Project {
@@ -20,7 +21,7 @@ export class ProjectService {
   private projectsSubject = new BehaviorSubject<Project[]>([]);
   public projects$: Observable<Project[]> = this.projectsSubject.asObservable();
 
-  private selectedProjectIdSubject = new BehaviorSubject<string>('proj_1');
+  private selectedProjectIdSubject = new BehaviorSubject<string>('');
   public selectedProjectId$: Observable<string> = this.selectedProjectIdSubject.asObservable();
 
   constructor() {
@@ -31,6 +32,10 @@ export class ProjectService {
     this.http.get<{data: Project[]}>(this.apiUrl).subscribe({
       next: (res) => {
         this.projectsSubject.next(res.data);
+        const currentSelected = this.selectedProjectIdSubject.value;
+        if (res.data.length > 0 && (!currentSelected || !res.data.find(p => p.id === currentSelected))) {
+          this.selectedProjectIdSubject.next(res.data[0].id);
+        }
       },
       error: (err) => console.error("Failed to load projects:", err)
     });
@@ -51,29 +56,27 @@ export class ProjectService {
       owner_id
     };
     
-    this.http.post<{data: Project}>(this.apiUrl, payload).subscribe({
-      next: (res) => {
+    return this.http.post<{data: Project}>(this.apiUrl, payload).pipe(
+      tap((res) => {
         const currentProjects = this.projectsSubject.value;
         this.projectsSubject.next([...currentProjects, res.data]);
-      },
-      error: (err) => console.error("Failed to add project:", err)
-    });
+      })
+    );
   }
 
   updateProject(id: string, payload: Partial<Project>) {
-    this.http.put<{data: Project}>(`${this.apiUrl}/${id}`, payload).subscribe({
-      next: (res) => {
+    return this.http.put<{data: Project}>(`${this.apiUrl}/${id}`, payload).pipe(
+      tap((res) => {
         const currentProjects = this.projectsSubject.value;
         const updatedProjects = currentProjects.map(p => p.id === id ? res.data : p);
         this.projectsSubject.next(updatedProjects);
-      },
-      error: (err) => console.error("Failed to update project:", err)
-    });
+      })
+    );
   }
 
   deleteProject(id: string) {
-    this.http.delete(`${this.apiUrl}/${id}`).subscribe({
-      next: () => {
+    return this.http.delete(`${this.apiUrl}/${id}`).pipe(
+      tap(() => {
         const currentProjects = this.projectsSubject.value;
         const updatedProjects = currentProjects.filter(p => p.id !== id);
         this.projectsSubject.next(updatedProjects);
@@ -81,8 +84,7 @@ export class ProjectService {
         if (this.getSelectedProjectId() === id) {
            this.setSelectedProject(updatedProjects.length > 0 ? updatedProjects[0].id : '');
         }
-      },
-      error: (err) => console.error("Failed to delete project:", err)
-    });
+      })
+    );
   }
 }

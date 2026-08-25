@@ -49,7 +49,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (task of tasks; track task.id) {
+      @for (task of paginatedTasks; track task.id) {
         <tr class="task-row" [class.date-passed-row]="(task.due_date | dueStatus) === 'passed'" [class.date-soon-row]="(task.due_date | dueStatus) === 'soon'" (click)="openEditModal(task)">
           <td class="cell-title">
             <div class="title-wrap">
@@ -112,6 +112,12 @@
       }
     </tbody>
   </table>
+  
+  <div class="pagination-controls" *ngIf="tasks.length > 0">
+    <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+    <span class="pagination-info">Page {{ currentPage }} of {{ totalPages }}</span>
+    <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
+  </div>
 </div>
 
 <!-- Modal Overlay -->

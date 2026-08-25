@@ -77,14 +77,20 @@ export class SidebarComponent {
 
   confirmCreateProject() {
     if (this.newProjectName && this.newProjectName.trim()) {
-      this.projectService.addProject(this.newProjectName.trim(), this.newProjectOwnerId);
-      this.dialog.closeAll();
-      this.snackBar.open(`Project "${this.newProjectName.trim()}" created successfully!`, 'Close', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
+      this.projectService.addProject(this.newProjectName.trim(), this.newProjectOwnerId).subscribe({
+        next: () => {
+          this.dialog.closeAll();
+          this.snackBar.open(`Project "${this.newProjectName.trim()}" created successfully!`, 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.newProjectName = '';
+          this.newProjectOwnerId = '';
+        },
+        error: (err) => {
+          this.snackBar.open(err.error?.error || 'Failed to create project. Name must be unique.', 'Close', { duration: 4000 });
+        }
       });
-      this.newProjectName = '';
-      this.newProjectOwnerId = '';
     }
   }
 
@@ -96,9 +102,15 @@ export class SidebarComponent {
 
   confirmEditProject() {
     if (this.activeProject && this.editProjectName.trim() && this.editProjectName.trim() !== this.activeProject.name) {
-      this.projectService.updateProject(this.activeProject.id, { name: this.editProjectName.trim() });
-      this.dialog.closeAll();
-      this.snackBar.open('Project renamed successfully!', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+      this.projectService.updateProject(this.activeProject.id, { name: this.editProjectName.trim() }).subscribe({
+        next: () => {
+          this.dialog.closeAll();
+          this.snackBar.open('Project renamed successfully!', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+        },
+        error: (err) => {
+          this.snackBar.open(err.error?.error || 'Failed to rename project. Name must be unique.', 'Close', { duration: 4000 });
+        }
+      });
     }
   }
 
@@ -109,9 +121,15 @@ export class SidebarComponent {
 
   confirmDeleteProject() {
     if (this.activeProject) {
-      this.projectService.deleteProject(this.activeProject.id);
-      this.dialog.closeAll();
-      this.snackBar.open('Project deleted successfully!', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+      this.projectService.deleteProject(this.activeProject.id).subscribe({
+        next: () => {
+          this.dialog.closeAll();
+          this.snackBar.open('Project deleted successfully!', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+        },
+        error: (err) => {
+          this.snackBar.open(err.error?.error || 'Failed to delete project.', 'Close', { duration: 3000 });
+        }
+      });
     }
   }
 
@@ -125,10 +143,16 @@ export class SidebarComponent {
     if (this.activeProject && this.assigneeId) {
       const users = this.taskService.users();
       if (users.find(u => u.id === this.assigneeId)) {
-        this.projectService.updateProject(this.activeProject.id, { owner_id: this.assigneeId });
-        this.dialog.closeAll();
-        const assigneeName = users.find(u => u.id === this.assigneeId)?.name;
-        this.snackBar.open(`Project assigned to ${assigneeName}`, 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+        this.projectService.updateProject(this.activeProject.id, { owner_id: this.assigneeId }).subscribe({
+          next: () => {
+            this.dialog.closeAll();
+            const assigneeName = users.find(u => u.id === this.assigneeId)?.name;
+            this.snackBar.open(`Project assigned to ${assigneeName}`, 'Close', { duration: 3000, panelClass: ['success-snackbar'] });
+          },
+          error: (err) => {
+            this.snackBar.open('Failed to assign project.', 'Close', { duration: 3000 });
+          }
+        });
       } else {
         this.snackBar.open('Invalid User ID', 'Close', { duration: 3000 });
       }

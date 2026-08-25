@@ -19,12 +19,12 @@ export class TaskService {
   private tasksSubject = new BehaviorSubject<Task[]>([]);
   public tasks$: Observable<Task[]> = this.tasksSubject.asObservable();
   
-  // Temporary hardcoded users until Users API is built
-  public users = signal<any[]>([
-    { id: 'usr_1', name: 'John Doe', role: 'Admin' },
-    { id: 'usr_2', name: 'Jane Smith', role: 'Member' },
-    { id: 'usr_3', name: 'Bob Johnson', role: 'Member' }
-  ]);
+  private allTasksSubject = new BehaviorSubject<Task[]>([]);
+  public allTasks$: Observable<Task[]> = this.allTasksSubject.asObservable();
+
+  private usersSubject = new BehaviorSubject<any[]>([]);
+  public users$ = this.usersSubject.asObservable();
+  public users = signal<any[]>([]); // Keep signal for synchronous reads in templates
 
   private searchSubject = new BehaviorSubject<string>('');
   private statusSubject = new BehaviorSubject<string>('');
@@ -38,8 +38,19 @@ export class TaskService {
   public error = signal<string | null>(null);
 
   constructor() {
+    this.fetchUsers();
     this.fetchTasks();
     this.initTaskStream();
+  }
+
+  private fetchUsers() {
+    this.http.get<{data: any[]}>(`${environment.apiUrl}/auth/users`).subscribe({
+      next: (res) => {
+        this.users.set(res.data);
+        this.usersSubject.next(res.data);
+      },
+      error: (err) => console.error("Failed to load users for task assignment", err)
+    });
   }
   
   private fetchTasks() {
@@ -66,10 +77,11 @@ export class TaskService {
       this.statusSubject,
       this.assigneeSubject,
       this.prioritySubject,
-      this.projectService.selectedProjectId$
+      this.projectService.selectedProjectId$,
+      this.usersSubject
     ]).pipe(
       debounceTime(100),
-      map(([tasks, q, status, assignee, priority, projectId]) => {
+      map(([tasks, q, status, assignee, priority, projectId, users]) => {
         let filteredTasks = tasks;
         
         // Task Visibility Rule based on Role
@@ -94,60 +106,72 @@ export class TaskService {
         if (projectId) {
           filteredTasks = filteredTasks.filter(t => t.project_id === projectId);
         }
-        return filteredTasks;
+        
+        return { filteredTasks, users };
       })
     ).subscribe({
-      next: (tasksData) => {
-        const users = this.users();
-        const parsedTasks = tasksData.map((task: any) => {
-          let assignee_ids = task.assignee_ids || [];
-          if (assignee_ids.length === 0 && task.assignee_id) {
-            assignee_ids = [task.assignee_id];
-          }
-          
-          let assignee_names: string[] = [];
-          let assignee_initials_list: string[] = [];
-          
-          for (const id of assignee_ids) {
-            const user = users.find((u: any) => u.id === id);
-            if (user) {
-              assignee_names.push(user.name);
-              assignee_initials_list.push(user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase());
-            }
-          }
-
-          let creator_name = 'Unknown';
-          if (task.creator_id) {
-            const creator = users.find((u: any) => u.id === task.creator_id);
-            if (creator) creator_name = creator.name;
-          } else if (assignee_names.length > 0) {
-            creator_name = assignee_names[0]; // fallback to assignee if no creator specified
-          }
-
-          let progress_stats = '0/0 done \u00B7 0%';
-          let progress_bar_fill = 0;
-          const subtasks = task.subtasks || [];
-          if (subtasks.length > 0) {
-            const completed = subtasks.filter((st: any) => st.is_completed).length;
-            const total = subtasks.length;
-            progress_bar_fill = Math.round((completed / total) * 100);
-            progress_stats = `${completed}/${total} done \u00B7 ${progress_bar_fill}%`;
-          }
-
-          return {
-            ...task,
-            assignee_ids,
-            assignee_names,
-            assignee_initials_list,
-            creator_name,
-            progress_label: 'Tasklists',
-            progress_stats,
-            progress_bar_fill,
-            created_at: task.created_at || "Jul 25, 2026"
-          };
-        });
-        this.tasksSubject.next(parsedTasks);
+      next: ({ filteredTasks, users }) => {
+        this.tasksSubject.next(this.mapTasks(filteredTasks, users));
       }
+    });
+
+    combineLatest([
+      this.localTasksSubject,
+      this.usersSubject
+    ]).pipe(debounceTime(100)).subscribe({
+      next: ([tasks, users]) => {
+        this.allTasksSubject.next(this.mapTasks(tasks, users));
+      }
+    });
+  }
+
+  private mapTasks(tasks: any[], users: any[]): Task[] {
+    return tasks.map((task: any) => {
+      let assignee_ids = task.assignee_ids || [];
+      if (assignee_ids.length === 0 && task.assignee_id) {
+        assignee_ids = [task.assignee_id];
+      }
+      
+      let assignee_names: string[] = [];
+      let assignee_initials_list: string[] = [];
+      
+      for (const id of assignee_ids) {
+        const user = users.find((u: any) => u.id === id);
+        if (user) {
+          assignee_names.push(user.name);
+          assignee_initials_list.push(user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase());
+        }
+      }
+
+      let creator_name = 'Unknown';
+      if (task.creator_id) {
+        const creator = users.find((u: any) => u.id === task.creator_id);
+        if (creator) creator_name = creator.name;
+      } else if (assignee_names.length > 0) {
+        creator_name = assignee_names[0]; // fallback to assignee if no creator specified
+      }
+
+      let progress_stats = '0/0 done \u00B7 0%';
+      let progress_bar_fill = 0;
+      const subtasks = task.subtasks || [];
+      if (subtasks.length > 0) {
+        const completed = subtasks.filter((st: any) => st.is_completed).length;
+        const total = subtasks.length;
+        progress_bar_fill = Math.round((completed / total) * 100);
+        progress_stats = `${completed}/${total} done \u00B7 ${progress_bar_fill}%`;
+      }
+
+      return {
+        ...task,
+        assignee_ids,
+        assignee_names,
+        assignee_initials_list,
+        creator_name,
+        progress_label: 'Tasklists',
+        progress_stats,
+        progress_bar_fill,
+        created_at: task.created_at || "Jul 25, 2026"
+      };
     });
   }
 

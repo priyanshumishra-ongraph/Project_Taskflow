@@ -4,6 +4,7 @@ export interface IProject extends Document {
   name: string;
   description?: string;
   status: 'Active' | 'Completed' | 'Archived';
+  owner_id?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,6 +15,7 @@ const ProjectSchema = new Schema<IProject>(
       type: String,
       required: [true, 'Project name is required'],
       trim: true,
+      unique: true,
       maxlength: [100, 'Project name cannot be more than 100 characters']
     },
     description: {
@@ -24,6 +26,9 @@ const ProjectSchema = new Schema<IProject>(
       type: String,
       enum: ['Active', 'Completed', 'Archived'],
       default: 'Active',
+    },
+    owner_id: {
+      type: String
     }
   },
   {

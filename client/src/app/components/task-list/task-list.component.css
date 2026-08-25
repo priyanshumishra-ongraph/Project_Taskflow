@@ -756,3 +756,30 @@
   background: #cbd5e1;
   border-radius: 3px;
 }
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+}
+.pagination-btn {
+  background: white;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.pagination-info {
+  font-size: 0.9rem;
+  color: #64748b;
+}

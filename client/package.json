@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "dotenv -e .env -- ng serve",
+    "build": "dotenv -e .env -- ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "api": "json-server --watch ../sample-data.json --port 3000"
@@ -31,6 +31,8 @@
     "@angular/cli": "^18.2.21",
     "@angular/compiler-cli": "^18.2.0",
     "@types/jasmine": "~5.1.0",
+    "@types/node": "^26.2.0",
+    "dotenv-cli": "^11.0.0",
     "jasmine-core": "~5.2.0",
     "json-server": "^0.17.4",
     "karma": "~6.4.0",

@@ -32,8 +32,10 @@ export class AdminDashboardComponent implements OnInit {
 
   taskForm: FormGroup;
   projectForm: FormGroup;
+  userForm: FormGroup;
   successMessage = '';
   projectSuccessMessage = '';
+  userSuccessMessage = '';
 
   activeTab: 'dashboard' | 'users' | 'projects' | 'assign' = 'dashboard';
   usersList: any[] = [];
@@ -55,6 +57,13 @@ export class AdminDashboardComponent implements OnInit {
     this.projectForm = this.fb.group({
       name: ['', Validators.required],
       owner_id: ['']
+    });
+
+    this.userForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      role: ['Member', Validators.required]
     });
   }
 
@@ -164,22 +173,28 @@ export class AdminDashboardComponent implements OnInit {
         due_date: formValue.due_date,
         progress_stats,
         progress_bar_fill
+      }).subscribe({
+        next: () => {
+          this.successMessage = `Task "${formValue.title}" assigned successfully!`;
+          
+          // Reset form but keep default values
+          this.taskForm.reset({
+            priority: 'Medium',
+            status: 'To Do',
+            project_id: formValue.project_id, // keep selected project for convenience
+            assignee_ids: [],
+            subtasks: [],
+            comments: [],
+            due_date: ''
+          });
+          
+          setTimeout(() => this.successMessage = '', 3000);
+        },
+        error: (err) => {
+          console.error("Error creating task", err);
+          alert("Failed to assign task");
+        }
       });
-      
-      this.successMessage = `Task "${formValue.title}" assigned successfully!`;
-      
-      // Reset form but keep default values
-      this.taskForm.reset({
-        priority: 'Medium',
-        status: 'To Do',
-        project_id: formValue.project_id, // keep selected project for convenience
-        assignee_ids: [],
-        subtasks: [],
-        comments: [],
-        due_date: ''
-      });
-      
-      setTimeout(() => this.successMessage = '', 3000);
     }
   }
 
@@ -193,6 +208,22 @@ export class AdminDashboardComponent implements OnInit {
       this.projectForm.reset();
       
       setTimeout(() => this.projectSuccessMessage = '', 3000);
+    }
+  }
+
+  onSubmitUser() {
+    if (this.userForm.valid) {
+      this.http.post(`${environment.apiUrl}/auth/users`, this.userForm.value).subscribe({
+        next: (res: any) => {
+          this.userSuccessMessage = `User "${res.data.name}" created successfully as ${res.data.role}!`;
+          this.userForm.reset({ role: 'Member' });
+          this.loadUsers(); // Refresh the list
+          setTimeout(() => this.userSuccessMessage = '', 3000);
+        },
+        error: (err) => {
+          alert(err.error?.error || 'Failed to create user');
+        }
+      });
     }
   }
 
