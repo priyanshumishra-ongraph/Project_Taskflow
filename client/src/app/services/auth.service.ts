@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 export interface UserContext {
   id: string;
   email: string;
+  name?: string;
   role: string;
 }
 
@@ -28,12 +29,19 @@ export class AuthService {
 
   private checkToken() {
     const token = localStorage.getItem(this.TOKEN_KEY);
-    if (token) {
-      try {
-        const payload = token.split('.')[1];
-        const decoded = JSON.parse(atob(payload)) as UserContext;
-        this.currentUser.set(decoded);
-        this.isLoggedIn.set(true);
+      if (token) {
+        try {
+          const payload = token.split('.')[1];
+          const decoded = JSON.parse(atob(payload)) as UserContext;
+          if (!decoded.name && decoded.email) {
+            decoded.name = decoded.email;
+          }
+          if (decoded.name && decoded.name.includes('@')) {
+            const localPart = decoded.name.split('@')[0];
+            decoded.name = localPart.split('.').map((part: string) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+          }
+          this.currentUser.set(decoded);
+          this.isLoggedIn.set(true);
       } catch (e) {
         this.logout();
       }

@@ -10,7 +10,7 @@ export const getTasks = async (req: Request, res: Response, next: NextFunction) 
     });
     res.status(200).json({ data: formattedTasks });
   } catch (error) {
-    next(error);
+    console.error('ERROR UPDATING TASK:', error); next(error);
   }
 };
 
@@ -36,11 +36,12 @@ export const createTask = async (req: Request, res: Response, next: NextFunction
     const obj = newTask.toObject();
     res.status(201).json({ data: { ...obj, id: obj._id } });
   } catch (error) {
-    next(error);
+    console.error('ERROR UPDATING TASK:', error); next(error);
   }
 };
 
 export const updateTask = async (req: Request, res: Response, next: NextFunction) => {
+  console.log('UPDATING TASK:', req.params.id, req.body);
   try {
     const { id } = req.params;
 
@@ -57,7 +58,7 @@ export const updateTask = async (req: Request, res: Response, next: NextFunction
     const obj = updatedTask.toObject();
     res.status(200).json({ data: { ...obj, id: obj._id } });
   } catch (error) {
-    next(error);
+    console.error('ERROR UPDATING TASK:', error); next(error);
   }
 };
 
@@ -72,6 +73,9 @@ export const deleteTask = async (req: Request, res: Response, next: NextFunction
 
     res.status(200).json({ data: { message: 'Task deleted successfully' } });
   } catch (error) {
-    next(error);
+    console.error('ERROR UPDATING TASK:', error); next(error);
   }
 };
+
+
+

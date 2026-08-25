@@ -5,7 +5,7 @@
       <p >Join TaskFlow today.</p>
     </div>
     
-    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+    <form [formGroup]="signupForm" class="signup-form" (ngSubmit)="onSubmit()">
       
       @if (errorMessage) {
         <div class="error-alert" style="color: #d32f2f; background: #ffebee; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 14px;">
@@ -13,22 +13,41 @@
         </div>
       }
 
-      <!-- Username Field -->
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input 
-          id="username" 
-          type="text" 
-          formControlName="username" 
-          [class.is-invalid]="isFieldInvalid('username')"
-          placeholder="e.g. angular_ninja"
-        >
-        @if (isFieldInvalid('username')) {
-          <div class="error-msg">
-            @if (signupForm.get('username')?.errors?.['required']) { <span>Username is required.</span> }
-            @if (signupForm.get('username')?.errors?.['minlength']) { <span>Must be at least 3 characters.</span> }
-          </div>
-        }
+      <!-- Name Fields -->
+      <div class="name-row">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input 
+            id="firstName" 
+            type="text" 
+            formControlName="firstName" 
+            [class.is-invalid]="isFieldInvalid('firstName')"
+            placeholder="John"
+          >
+          @if (isFieldInvalid('firstName')) {
+            <div class="error-msg">
+              @if (signupForm.get('firstName')?.errors?.['required']) { <span>First Name required.</span> }
+              @if (signupForm.get('firstName')?.errors?.['minlength']) { <span>At least 2 chars.</span> }
+            </div>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input 
+            id="lastName" 
+            type="text" 
+            formControlName="lastName" 
+            [class.is-invalid]="isFieldInvalid('lastName')"
+            placeholder="Doe"
+          >
+          @if (isFieldInvalid('lastName')) {
+            <div class="error-msg">
+              @if (signupForm.get('lastName')?.errors?.['required']) { <span>Last Name required.</span> }
+              @if (signupForm.get('lastName')?.errors?.['minlength']) { <span>At least 2 chars.</span> }
+            </div>
+          }
+        </div>
       </div>
 
       <!-- Email Field -->

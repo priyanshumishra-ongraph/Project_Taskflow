@@ -1,18 +1,18 @@
 <mat-card class="task-card" 
-     [class.date-passed]="(task.due_date | dueStatus) === 'passed'"
-     [class.date-soon]="(task.due_date | dueStatus) === 'soon'"
+     [class.date-passed]="(task.due_date | dueStatus:task.status) === 'passed'"
+     [class.date-soon]="(task.due_date | dueStatus:task.status) === 'soon'"
      [class.bg-todo]="task.status === 'To Do'"
      [class.bg-progress]="task.status === 'In Progress'"
      [class.bg-testing]="task.status === 'Testing'"
      [class.bg-completed]="task.status === 'Completed'"
      style="margin-bottom: 12px; border-radius: 8px;">
   
-  <mat-card-content *ngIf="(task.due_date | dueStatus)" style="padding-bottom: 0;">
-    <div class="date-passed-alert" *ngIf="(task.due_date | dueStatus) === 'passed'">
+  <mat-card-content *ngIf="(task.due_date | dueStatus:task.status)" style="padding-bottom: 0;">
+    <div class="date-passed-alert" *ngIf="(task.due_date | dueStatus:task.status) === 'passed'">
       <mat-icon style="font-size: 14px; width: 14px; height: 14px;">warning</mat-icon>
       <span>DATE PASSED</span>
     </div>
-    <div class="date-soon-alert" *ngIf="(task.due_date | dueStatus) === 'soon'">
+    <div class="date-soon-alert" *ngIf="(task.due_date | dueStatus:task.status) === 'soon'">
       <mat-icon style="font-size: 14px; width: 14px; height: 14px;">schedule</mat-icon>
       <span>DUE SOON</span>
     </div>
@@ -60,18 +60,19 @@
     </div>
   </mat-card-content>
 
-  <mat-divider *ngIf="!(task.due_date | dueStatus)"></mat-divider>
+  <mat-divider *ngIf="!(task.due_date | dueStatus:task.status)"></mat-divider>
 
-  <mat-card-actions *ngIf="!(task.due_date | dueStatus)" style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; padding: 12px 16px;">
-    <span>{{ task.created_at || 'N/A' }}</span>
+  <mat-card-actions *ngIf="!(task.due_date | dueStatus:task.status)" style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; padding: 12px 16px;">
+    <span style="white-space: nowrap; flex-shrink: 0; margin-right: 8px;">{{ task.created_at || 'N/A' }}</span>
     <span>{{ task.assignee_names?.join(', ') || 'Unknown User' }}</span>
   </mat-card-actions>
 
-  <mat-card-actions *ngIf="(task.due_date | dueStatus)" [ngClass]="{'footer-soon': (task.due_date | dueStatus) === 'soon'}" class="card-footer-red" style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; align-items: center; padding: 12px 16px;">
-    <span>{{ task.created_at || 'N/A' }}</span>
-    <div class="ask-btn" style="display: flex; align-items: center; gap: 4px; color: #ef4444; font-weight: 500; cursor: pointer;">
+  <mat-card-actions *ngIf="(task.due_date | dueStatus:task.status)" [ngClass]="{'footer-soon': (task.due_date | dueStatus:task.status) === 'soon'}" class="card-footer-red" style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; align-items: center; padding: 12px 16px;">
+    <span style="white-space: nowrap; flex-shrink: 0; margin-right: 8px;">{{ task.created_at || 'N/A' }}</span>
+    <div class="ask-btn" style="display: flex; align-items: center; gap: 4px; color: #ef4444; font-weight: 500; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; justify-content: flex-end;">
       <mat-icon style="font-size: 14px; width: 14px; height: 14px;">help_outline</mat-icon>
       <span>Ask {{ task.assignee_names?.join(', ') || 'Unknown User' }}</span>
     </div>
   </mat-card-actions>
 </mat-card>
+

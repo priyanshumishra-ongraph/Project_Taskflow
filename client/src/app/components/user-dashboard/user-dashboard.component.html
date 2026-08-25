@@ -1,0 +1,256 @@
+<div class="dashboard-wrapper">
+
+<!-- Redesigned Header -->
+<div class="dashboard-header">
+  <h1 class="welcome-title">Welcome back, <span class="text-purple">{{ userName }}</span></h1>
+  
+  <div class="header-actions">
+    <!-- Attendance / Timer Widget -->
+    <div class="attendance-widget" [class.is-checked-in]="isCheckedIn">
+      <div class="attendance-info">
+        <span class="status-dot"></span>
+        <div class="attendance-text-group">
+          <span class="status-text">{{ isCheckedIn ? 'Working' : 'Not working' }}</span>
+          <small class="time-text" *ngIf="checkInDate">
+            {{ isCheckedIn ? 'Started: ' + checkInDate + ' ' + checkInTime : 'Last: ' + checkInDate }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Live Timer Display -->
+      <div class="timer-display" *ngIf="isCheckedIn">
+        <span class="timer-clock">{{ elapsedFormatted }}</span>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" [style.width.%]="progressPercent"></div>
+        </div>
+        <small class="remaining-text">{{ remainingFormatted }}</small>
+      </div>
+
+      <!-- Checkout time shown when not checked in -->
+      <div class="checkout-summary" *ngIf="!isCheckedIn && checkOutTime">
+        <small class="time-text">Checked out: {{ checkOutTime }}</small>
+        <small class="time-text" style="color:#6366f1;">Duration: {{ elapsedFormatted }}</small>
+      </div>
+
+      <button class="btn-attendance"
+        [class.btn-out]="isCheckedIn"
+        [disabled]="isCheckedIn && !canCheckOut"
+        [title]="isCheckedIn && !canCheckOut ? 'Minimum 4 hours required to check out' : ''"
+        (click)="toggleAttendance()">
+        {{ isCheckedIn ? (canCheckOut ? 'Check Out' : 'Min 4h needed') : 'Check In' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- 6 Column KPI Grid -->
+<div class="kpi-6-grid">
+  <!-- To do -->
+  <div class="kpi-stat-card theme-gray" (click)="toggleCard('todo', $event)" [style.z-index]="expandedCard === 'todo' ? 50 : 1">
+    <div class="stat-icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h11"/><path d="M9 6h11"/><path d="M9 18h11"/><path d="M5 12v.01"/><path d="M5 6v.01"/><path d="M5 18v.01"/></svg>
+    </div>
+    <div class="stat-number">{{ todoTasksCount }}</div>
+    <div class="stat-label">To do <span class="arrow">&gt;</span></div>
+    <div class="stat-footer">Assigned to you &middot; All time</div>
+
+    @if (expandedCard === 'todo') {
+      <div class="kpi-dropdown" (click)="$event.stopPropagation()">
+        <h4>To Do Tasks</h4>
+        <div class="dropdown-list">
+          @for (task of todoTasksList; track task.id) {
+            <a routerLink="/board" class="dropdown-item">{{ task.title }}</a>
+          } @empty {
+            <div class="empty-dropdown">No tasks in this category</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- In progress -->
+  <div class="kpi-stat-card theme-blue" (click)="toggleCard('inprogress', $event)" [style.z-index]="expandedCard === 'inprogress' ? 50 : 1">
+    <div class="stat-icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+    </div>
+    <div class="stat-number">{{ inProgressTasksCount }}</div>
+    <div class="stat-label">In progress <span class="arrow">&gt;</span></div>
+    <div class="stat-footer">Assigned to you &middot; All time</div>
+
+    @if (expandedCard === 'inprogress') {
+      <div class="kpi-dropdown" (click)="$event.stopPropagation()">
+        <h4>In Progress Tasks</h4>
+        <div class="dropdown-list">
+          @for (task of inProgressTasksList; track task.id) {
+            <a routerLink="/board" class="dropdown-item">{{ task.title }}</a>
+          } @empty {
+            <div class="empty-dropdown">No tasks in this category</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Testing -->
+  <div class="kpi-stat-card theme-yellow" (click)="toggleCard('testing', $event)" [style.z-index]="expandedCard === 'testing' ? 50 : 1">
+    <div class="stat-icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+    </div>
+    <div class="stat-number">{{ testingTasksCount }}</div>
+    <div class="stat-label">Testing <span class="arrow">&gt;</span></div>
+    <div class="stat-footer">Assigned to you &middot; All time</div>
+
+    @if (expandedCard === 'testing') {
+      <div class="kpi-dropdown" (click)="$event.stopPropagation()">
+        <h4>Testing Tasks</h4>
+        <div class="dropdown-list">
+          @for (task of testingTasksList; track task.id) {
+            <a routerLink="/board" class="dropdown-item">{{ task.title }}</a>
+          } @empty {
+            <div class="empty-dropdown">No tasks in this category</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Completed -->
+  <div class="kpi-stat-card theme-green" (click)="toggleCard('completed', $event)" [style.z-index]="expandedCard === 'completed' ? 50 : 1">
+    <div class="stat-icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <div class="stat-number">{{ completedTasksCount }}</div>
+    <div class="stat-label">Completed <span class="arrow">&gt;</span></div>
+    <div class="stat-footer">Assigned to you &middot; All time</div>
+
+    @if (expandedCard === 'completed') {
+      <div class="kpi-dropdown" (click)="$event.stopPropagation()">
+        <h4>Completed Tasks</h4>
+        <div class="dropdown-list">
+          @for (task of completedTasksList; track task.id) {
+            <a routerLink="/board" class="dropdown-item">{{ task.title }}</a>
+          } @empty {
+            <div class="empty-dropdown">No tasks in this category</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Deadline approaching -->
+  <div class="kpi-stat-card theme-brown" (click)="toggleCard('approaching', $event)" [style.z-index]="expandedCard === 'approaching' ? 50 : 1">
+    <div class="stat-icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <div class="stat-number">{{ deadlineApproachingCount }}</div>
+    <div class="stat-label">Deadline approaching <span class="arrow">&gt;</span></div>
+    <div class="stat-footer">Assigned to you &middot; All time</div>
+
+    @if (expandedCard === 'approaching') {
+      <div class="kpi-dropdown" (click)="$event.stopPropagation()">
+        <h4>Approaching Deadline</h4>
+        <div class="dropdown-list">
+          @for (task of deadlineApproachingList; track task.id) {
+            <a routerLink="/board" class="dropdown-item">{{ task.title }}</a>
+          } @empty {
+            <div class="empty-dropdown">No tasks approaching deadline</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Deadline passed -->
+  <div class="kpi-stat-card theme-red" (click)="toggleCard('passed', $event)" [style.z-index]="expandedCard === 'passed' ? 50 : 1">
+    <div class="stat-icon-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+    </div>
+    <div class="stat-number">{{ overdueTasksCount }}</div>
+    <div class="stat-label">Deadline passed <span class="arrow">&gt;</span></div>
+    <div class="stat-footer">Assigned to you &middot; All time</div>
+
+    @if (expandedCard === 'passed') {
+      <div class="kpi-dropdown" (click)="$event.stopPropagation()">
+        <h4>Deadline Passed</h4>
+        <div class="dropdown-list">
+          @for (task of overdueTasksList; track task.id) {
+            <a routerLink="/board" class="dropdown-item">{{ task.title }}</a>
+          } @empty {
+            <div class="empty-dropdown">No overdue tasks</div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+
+<div class="dashboard-split">
+    
+    <!-- Left Column: Recent / Active Tasks -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Your Active Tasks</h2>
+        <a routerLink="/board" class="view-all-link">View Board</a>
+      </div>
+      <div class="panel-content">
+        @if (recentTasks.length === 0) {
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            <p>You have no active tasks.</p>
+          </div>
+        } @else {
+          <div class="task-list">
+            @for (task of recentTasks; track task.id) {
+              <div class="task-item">
+                <div class="task-item-left">
+                  <span class="task-priority-indicator" [ngClass]="task.priority.toLowerCase()"></span>
+                  <div class="task-item-info">
+                    <h4>{{ task.title }}</h4>
+                    <span class="task-meta">Status: {{ task.status }}</span>
+                  </div>
+                </div>
+                <div class="task-item-right">
+                  <a routerLink="/board" class="btn-sm">Open</a>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Right Column: Completed Tasks -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Completed Tasks</h2>
+      </div>
+      <div class="panel-content">
+        @if (completedTasksList.length === 0) {
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <p>No completed tasks yet.</p>
+          </div>
+        } @else {
+          <div class="task-list">
+            @for (task of completedTasksList.slice(0, 5); track task.id) {
+              <div class="task-item">
+                <div class="task-item-left">
+                  <div class="task-item-info">
+                    <h4>{{ task.title }}</h4>
+                    <span class="task-meta text-green">Completed</span>
+                  </div>
+                </div>
+                <div class="task-item-right">
+                  <a routerLink="/board" class="btn-sm btn-outline">View</a>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

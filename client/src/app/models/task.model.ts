@@ -5,6 +5,8 @@ export interface Task {
   status: string;
   priority: string;
   due_date: string;
+  updatedAt?: string;
+  createdAt?: string;
   project_id: string;
   assignee_ids?: string[];
   assignee_names?: string[];

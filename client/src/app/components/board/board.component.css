@@ -23,3 +23,70 @@
 .list-view {
   width: 100%;
 }
+
+
+.board-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.header-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.board-filters-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: flex-end;
+}
+@media (max-width: 600px) {
+  .board-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .header-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .board-filters-bar mat-form-field {
+    width: 100%;
+    min-width: 100% !important;
+  }
+}
+
+
+.board-filters-bar mat-form-field {
+  flex: 1 1 200px; /* Grow to fill, shrink if needed, base 200px */
+}
+/* Ensure search is slightly wider if it's on a row alone */
+.board-filters-bar mat-form-field:first-child {
+  flex: 2 1 300px;
+}
+
+
+::ng-deep .header-controls mat-button-toggle-group {
+  height: 42px !important;
+}
+
+::ng-deep .header-controls .mat-button-toggle-label-content {
+  line-height: 42px !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px;
+}
+
+::ng-deep .header-controls .mat-button-toggle-label-content mat-icon {
+  margin: 0 !important;
+}
+
+::ng-deep .header-controls button[mat-flat-button] {
+  height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+}

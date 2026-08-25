@@ -33,7 +33,8 @@ export class SignupComponent {
 
   // Initialize the Reactive Form
   signupForm = this.fb.group({
-    username: ['', [Validators.required, Validators.minLength(3)]],
+    firstName: ['', [Validators.required, Validators.minLength(2)]],
+    lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, passwordStrengthValidator]],
     confirmPassword: ['']
@@ -51,7 +52,7 @@ export class SignupComponent {
       const formValue = this.signupForm.value;
       
       this.http.post(`${environment.apiUrl}/auth/register`, {
-        name: formValue.username,
+        name: `${formValue.firstName} ${formValue.lastName}`,
         email: formValue.email,
         password: formValue.password
       }).subscribe({

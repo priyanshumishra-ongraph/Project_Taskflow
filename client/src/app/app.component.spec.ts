@@ -5,6 +5,15 @@ import { provideHttpClient } from '@angular/common/http';
 
 import { provideRouter } from '@angular/router';
 
+declare function beforeEach(action: () => void | Promise<void>): void;
+declare function describe(description: string, action: () => void): void;
+declare function it(description: string, action: () => void): void;
+declare function expect<T>(actual: T): {
+  toBeTruthy(): void;
+  toEqual(expected: unknown): void;
+  toContain(expected: unknown): void;
+};
+
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({

@@ -14,8 +14,8 @@ export interface IComment {
 export interface ITask extends Document {
   title: string;
   description?: string;
-  status: 'To Do' | 'In Progress' | 'Done';
-  priority: 'Low' | 'Medium' | 'High';
+  status: 'To Do' | 'In Progress' | 'Testing' | 'Completed';
+  priority: 'Low' | 'Medium' | 'High' | 'Urgent';
   due_date?: Date;
   project_id: mongoose.Types.ObjectId;
   creator_id?: mongoose.Types.ObjectId;
@@ -68,12 +68,12 @@ const TaskSchema = new Schema<ITask>(
     },
     status: {
       type: String,
-      enum: ['To Do', 'In Progress', 'Done'],
+      enum: ['To Do', 'In Progress', 'Testing', 'Completed'],
       default: 'To Do',
     },
     priority: {
       type: String,
-      enum: ['Low', 'Medium', 'High'],
+      enum: ['Low', 'Medium', 'High', 'Urgent'],
       default: 'Medium',
     },
     due_date: {
@@ -101,3 +101,4 @@ const TaskSchema = new Schema<ITask>(
 );
 
 export default mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
+

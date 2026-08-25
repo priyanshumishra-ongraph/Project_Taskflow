@@ -1,6 +1,6 @@
-<header class="board-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+<header class="board-header">
   <h2 style="margin: 0; font-size: 2rem; font-weight: 500;">Board</h2>
-  <div class="header-controls" style="display: flex; gap: 16px; align-items: center;">
+  <div class="header-controls">
     <mat-button-toggle-group [(ngModel)]="viewMode" hideSingleSelectionIndicator="true">
       <mat-button-toggle value="list">
         <mat-icon>list</mat-icon> List
@@ -16,8 +16,8 @@
   </div>
 </header>
 
-<div class="board-filters-bar" style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; align-items: flex-end;">
-  <mat-form-field appearance="outline" subscriptSizing="dynamic" style="flex: 1; min-width: 250px;">
+<div class="board-filters-bar">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" >
     <mat-icon matPrefix style="margin-right: 8px;">search</mat-icon>
     <input matInput type="text" placeholder="Search tasks..." [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)">
   </mat-form-field>

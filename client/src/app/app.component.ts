@@ -1,4 +1,4 @@
-import { Component, inject, HostListener } from '@angular/core';
+import { Component, inject, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
@@ -20,6 +20,14 @@ export class AppComponent {
   title = 'TaskFlow';
   authService = inject(AuthService);
   showProfileMenu = false;
+
+  @ViewChild('sidebar') sidebar?: SidebarComponent;
+
+  toggleSidebar() {
+    if (this.sidebar) {
+      this.sidebar.toggleSidebar();
+    }
+  }
 
   toggleProfileMenu(event: Event) {
     event.stopPropagation();

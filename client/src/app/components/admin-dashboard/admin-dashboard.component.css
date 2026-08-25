@@ -10,10 +10,12 @@
 
 .admin-header {
   width: 100%;
-  max-width: 800px;
+  max-width: 1440px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .admin-header h2 {
@@ -61,7 +63,7 @@
 
 .admin-card {
   width: 100%;
-  max-width: 800px;
+  max-width: 1440px;
 }
 
 .admin-form {
@@ -215,7 +217,7 @@
 .assignees-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
   padding: 16px;
@@ -227,9 +229,27 @@
   font-size: 0.9rem;
   color: #334155;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.assignee-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .assignee-item .role {
   color: #94a3b8;
+  font-size: 0.8rem;
+}
+@media (max-width: 768px) {
+  .assignees-grid {
+    grid-template-columns: 1fr;
+  }
+  .assignee-item {
+    white-space: normal;
+    overflow: visible;
+  }
 }
 .radio-custom {
   margin-top: 4px;
@@ -249,7 +269,7 @@
 }
 
 .btn-solid-blue {
-  background: #2563eb;
+  background: #3f51b5;
   color: white;
   border: none;
   padding: 10px 24px;
@@ -257,21 +277,29 @@
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: 0 2px 4px rgba(63, 81, 181, 0.2);
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
 }
-.btn-solid-blue:hover { background: #1d4ed8; }
+.btn-solid-blue:hover { 
+  background: #303f9f; 
+  box-shadow: 0 4px 8px rgba(63, 81, 181, 0.3);
+}
 .btn-solid-blue:active { transform: scale(0.98); }
-.btn-solid-blue:disabled { background: #94a3b8; cursor: not-allowed; }
+.btn-solid-blue:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
 
 .btn-link {
   background: none;
   border: none;
-  color: #1e293b;
+  color: #64748b;
   font-weight: 600;
   cursor: pointer;
   padding: 10px 16px;
+  border-radius: 6px;
 }
-.btn-link:hover { color: #3b82f6; }
+.btn-link:hover { 
+  color: #1e293b; 
+  background: #f1f5f9;
+}
 
 /* Missing TaskList and Comments CSS from task-list */
 .section-header {
@@ -322,8 +350,9 @@
 .btn-add {
   position: absolute;
   right: 8px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #3f51b5;
+  color: white;
+  border: none;
   padding: 4px 12px;
   border-radius: 6px;
   font-weight: 600;
@@ -331,6 +360,10 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: background-color 0.2s;
+}
+.btn-add:hover {
+  background: #303f9f;
 }
 
 .count {
@@ -361,7 +394,7 @@
   position: absolute;
   bottom: 16px;
   right: 16px;
-  background: #2563eb;
+  background: #3f51b5;
   border: none;
   width: 32px;
   height: 32px;
@@ -373,8 +406,164 @@
   transition: background-color 0.2s, transform 0.1s;
 }
 .btn-send:hover {
-  background: #1d4ed8;
+  background: #303f9f;
 }
 .btn-send:active {
   transform: scale(0.95);
+}
+
+
+.two-col-form {
+  display: grid !important;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: flex-start;
+}
+@media (min-width: 769px) {
+  .two-col-form {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+.two-col-form .actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+.two-col-form mat-form-field {
+  width: 100%;
+}
+
+/* Admin Pagination */
+.admin-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 4px;
+}
+
+.admin-pg-info {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.admin-pg-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-pg-btn {
+  min-width: 32px;
+  height: 32px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.admin-pg-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.admin-pg-btn.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.admin-pg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Mobile Responsiveness ── */
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 16px 12px;
+    gap: 16px;
+  }
+
+  /* Header stacks title above nav tabs */
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .admin-header h2 {
+    font-size: 20px;
+  }
+
+  /* Nav tabs shrink and wrap */
+  .admin-nav {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .nav-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+    flex: 1;
+    text-align: center;
+  }
+
+  /* Table scrolls horizontally */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .progress-table {
+    min-width: 500px;
+  }
+
+  .user-table {
+    min-width: 400px;
+  }
+
+  /* Two-col forms collapse to single column */
+  .two-col-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Four-col-row wraps to 2 cols on mobile */
+  .four-col-row {
+    flex-wrap: wrap;
+  }
+
+  .four-col-row .form-section {
+    min-width: calc(50% - 8px) !important;
+  }
+
+  /* Pagination stacks */
+  .admin-pagination {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .admin-pg-btns {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Single col for everything on very small screens */
+  .four-col-row .form-section {
+    min-width: 100% !important;
+  }
+
+  .nav-btn {
+    padding: 7px 8px;
+    font-size: 12px;
+  }
 }

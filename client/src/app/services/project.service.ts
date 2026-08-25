@@ -32,10 +32,6 @@ export class ProjectService {
     this.http.get<{data: Project[]}>(this.apiUrl).subscribe({
       next: (res) => {
         this.projectsSubject.next(res.data);
-        const currentSelected = this.selectedProjectIdSubject.value;
-        if (res.data.length > 0 && (!currentSelected || !res.data.find(p => p.id === currentSelected))) {
-          this.selectedProjectIdSubject.next(res.data[0].id);
-        }
       },
       error: (err) => console.error("Failed to load projects:", err)
     });
@@ -82,7 +78,7 @@ export class ProjectService {
         this.projectsSubject.next(updatedProjects);
         
         if (this.getSelectedProjectId() === id) {
-           this.setSelectedProject(updatedProjects.length > 0 ? updatedProjects[0].id : '');
+           this.setSelectedProject('');
         }
       })
     );

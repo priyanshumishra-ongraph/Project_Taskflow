@@ -4,7 +4,7 @@
     <div class="admin-nav">
       <button class="nav-btn" [class.active]="activeTab === 'dashboard'" (click)="activeTab = 'dashboard'">Dashboard</button>
       <button class="nav-btn" [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">Users</button>
-      <button class="nav-btn" [class.active]="activeTab === 'projects'" (click)="activeTab = 'projects'">Projects</button>
+      
       <button class="nav-btn" [class.active]="activeTab === 'assign'" (click)="activeTab = 'assign'">Assign Task</button>
     </div>
   </div>
@@ -17,41 +17,58 @@
       </mat-card-header>
       
       <mat-card-content>
-        <div class="table-container">
-          <table class="progress-table">
-            <thead>
-              <tr>
-                <th>Task</th>
-                <th>Assignee</th>
-                <th>Status</th>
-                <th>Progress</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let task of taskService.allTasks$ | async">
-                <td>{{ task.title }}</td>
-                <td>{{ task.assignee_names?.join(', ') || 'Unassigned' }}</td>
-                <td>
-                  <span class="status-badge" [ngClass]="task.status.toLowerCase().replace(' ', '-')">
-                    {{ task.status }}
-                  </span>
-                </td>
-                <td>
-                  <div class="progress-bar-container">
-                    <div class="progress-fill" [style.width.%]="task.progress_bar_fill || 0"></div>
-                  </div>
-                  <span class="progress-text">{{ task.progress_bar_fill || 0 }}%</span>
-                </td>
-              </tr>
-              <tr *ngIf="(taskService.allTasks$ | async)?.length === 0">
-                <td colspan="4" class="no-data">No tasks found.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ng-container *ngIf="taskService.allTasks$ | async as allTasks">
+          <div class="table-container">
+            <table class="progress-table">
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Assignee</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let task of getPaginatedTasks(allTasks)">
+                  <td>{{ task.title }}</td>
+                  <td>{{ task.assignee_names?.join(', ') || 'Unassigned' }}</td>
+                  <td>
+                    <span class="status-badge" [ngClass]="task.status.toLowerCase().replace(' ', '-')">
+                      {{ task.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="progress-bar-container">
+                      <div class="progress-fill" [style.width.%]="task.progress_bar_fill || 0"></div>
+                    </div>
+                    <span class="progress-text">{{ task.progress_bar_fill || 0 }}%</span>
+                  </td>
+                </tr>
+                <tr *ngIf="allTasks.length === 0">
+                  <td colspan="4" class="no-data">No tasks found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="admin-pagination" *ngIf="allTasks.length > taskPageSize">
+            <span class="admin-pg-info">
+              {{ (taskPage - 1) * taskPageSize + 1 }}–{{ taskPage * taskPageSize > allTasks.length ? allTasks.length : taskPage * taskPageSize }} of {{ allTasks.length }}
+            </span>
+            <div class="admin-pg-btns">
+              <button class="admin-pg-btn" (click)="taskPrevPage()" [disabled]="taskPage === 1">&#8249;</button>
+              <ng-container *ngFor="let p of [].constructor(getTaskTotalPages(allTasks)); let i = index">
+                <button class="admin-pg-btn" [class.active]="taskPage === i + 1" (click)="taskGoToPage(i + 1, getTaskTotalPages(allTasks))">{{ i + 1 }}</button>
+              </ng-container>
+              <button class="admin-pg-btn" (click)="taskNextPage(getTaskTotalPages(allTasks))" [disabled]="taskPage === getTaskTotalPages(allTasks)">&#8250;</button>
+            </div>
+          </div>
+        </ng-container>
       </mat-card-content>
     </mat-card>
   </ng-container>
+
 
   <ng-container *ngIf="activeTab === 'users'">
     <!-- Create User Card -->
@@ -65,27 +82,27 @@
           {{ userSuccessMessage }}
         </div>
 
-        <form [formGroup]="userForm" (ngSubmit)="onSubmitUser()" class="admin-form" style="display: flex; gap: 16px; flex-wrap: wrap;">
-          <mat-form-field appearance="outline" style="flex: 1; min-width: 200px;">
+        <form [formGroup]="userForm" (ngSubmit)="onSubmitUser()" class="admin-form two-col-form">
+          <mat-form-field appearance="outline">
             <mat-label>Name</mat-label>
             <input matInput formControlName="name" placeholder="John Doe">
           </mat-form-field>
-          <mat-form-field appearance="outline" style="flex: 1; min-width: 200px;">
+          <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
             <input matInput type="email" formControlName="email" placeholder="john@example.com">
           </mat-form-field>
-          <mat-form-field appearance="outline" style="flex: 1; min-width: 200px;">
+          <mat-form-field appearance="outline">
             <mat-label>Password</mat-label>
             <input matInput type="password" formControlName="password" placeholder="Min 6 chars">
           </mat-form-field>
-          <mat-form-field appearance="outline" style="flex: 1; min-width: 150px;">
+          <mat-form-field appearance="outline">
             <mat-label>Role</mat-label>
             <mat-select formControlName="role">
               <mat-option value="Member">Member</mat-option>
               <mat-option value="Admin">Admin</mat-option>
             </mat-select>
           </mat-form-field>
-          <div class="actions" style="width: 100%; display: flex; justify-content: flex-end;">
+          <div class="actions">
             <button mat-flat-button color="primary" type="submit" [disabled]="userForm.invalid">Create User</button>
           </div>
         </form>
@@ -126,42 +143,7 @@
     </mat-card>
   </ng-container>
 
-  <ng-container *ngIf="activeTab === 'projects'">
-    <!-- Create Project Card -->
-    <mat-card class="admin-card project-card">
-      <mat-card-header>
-        <mat-card-title>Create New Project</mat-card-title>
-      </mat-card-header>
-      
-      <mat-card-content>
-        <div *ngIf="projectSuccessMessage" class="success-alert">
-          {{ projectSuccessMessage }}
-        </div>
-
-        <form [formGroup]="projectForm" (ngSubmit)="onSubmitProject()" class="admin-form">
-          <mat-form-field appearance="outline">
-            <mat-label>Project Name</mat-label>
-            <input matInput formControlName="name" placeholder="E.g. Q4 Marketing">
-            <mat-error *ngIf="projectForm.get('name')?.hasError('required')">
-              Name is required
-            </mat-error>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Assign Project To (Optional)</mat-label>
-            <mat-select formControlName="owner_id">
-              <mat-option value="">Unassigned</mat-option>
-              <mat-option *ngFor="let u of taskService.users()" [value]="u.id">
-                {{ u.name }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-          <div class="actions">
-            <button mat-flat-button color="accent" type="submit" [disabled]="projectForm.invalid">Create Project</button>
-          </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
-  </ng-container>
+  
 
   <ng-container *ngIf="activeTab === 'assign'">
     <!-- Task Assignment Card -->
@@ -177,18 +159,17 @@
 
         <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="custom-admin-form">
           <!-- Project Selection -->
-          <div class="form-section">
-            <label>Project <span class="required">*</span></label>
-            <select formControlName="project_id" class="input-block">
-              <option value="" disabled>Select Project</option>
-              <option *ngFor="let p of projectService.projects$ | async" [value]="p.id">
-                {{ p.name }}
-              </option>
-            </select>
-          </div>
-
-          <div style="display: flex; gap: 16px; margin-bottom: 24px;">
-            <div class="form-section" style="flex: 1; margin-bottom: 0;">
+            <div class="four-col-row" style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+              <div class="form-section" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                <label>Project <span class="required">*</span></label>
+                <select formControlName="project_id" class="input-block">
+                  <option value="" disabled>Select Project</option>
+                  <option *ngFor="let p of projectService.projects$ | async" [value]="p.id">
+                    {{ p.name }}
+                  </option>
+                </select>
+              </div>
+            <div class="form-section" style="flex: 1; min-width: 150px; margin-bottom: 0;">
               <label>Priority</label>
               <select formControlName="priority" class="input-block">
                 <option value="Urgent">Urgent</option>
@@ -197,11 +178,11 @@
                 <option value="Low">Low</option>
               </select>
             </div>
-            <div class="form-section" style="flex: 1; margin-bottom: 0;">
+            <div class="form-section" style="flex: 1; min-width: 150px; margin-bottom: 0;">
               <label>Due</label>
-              <input type="date" formControlName="due_date" class="input-block">
+              <input type="date" formControlName="due_date" [min]="minDate" class="input-block">
             </div>
-            <div class="form-section" style="flex: 1; margin-bottom: 0;">
+            <div class="form-section" style="flex: 1; min-width: 150px; margin-bottom: 0;">
               <label>Status</label>
               <select formControlName="status" class="input-block">
                 <option value="To Do">To Do</option>
@@ -222,7 +203,6 @@
           <div class="form-section">
             <div class="section-header">
               <div class="section-title">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
                 TaskList
               </div>
               <div class="section-meta">{{ completedSubtasksCount }}/{{ taskForm.get('subtasks')?.value?.length || 0 }} &bull; {{ subtasksPercentage }}%</div>
@@ -262,7 +242,6 @@
           <!-- Comments -->
           <div class="form-section">
             <div class="section-title">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               Comments <span class="count">({{ taskForm.get('comments')?.value?.length || 0 }})</span>
             </div>
             <ng-container *ngIf="taskForm.get('comments')?.value?.length; else noComments">

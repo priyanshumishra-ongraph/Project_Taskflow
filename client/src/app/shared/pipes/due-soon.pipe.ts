@@ -5,8 +5,9 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true
 })
 export class DueStatusPipe implements PipeTransform {
-  transform(value: string | Date): 'passed' | 'soon' | null {
+  transform(value: string | Date, status?: string): 'passed' | 'soon' | null {
     if (!value) return null;
+    if (status === 'Completed') return null;
     
     const dueDate = new Date(value);
     dueDate.setHours(0, 0, 0, 0);

@@ -46,11 +46,27 @@ export class TaskService {
   private fetchUsers() {
     this.http.get<{data: any[]}>(`${environment.apiUrl}/auth/users`).subscribe({
       next: (res) => {
-        this.users.set(res.data);
-        this.usersSubject.next(res.data);
+        const formattedUsers = res.data.map((u: any) => ({
+          ...u,
+          name: this.formatName(u.name)
+        }));
+        this.users.set(formattedUsers);
+        this.usersSubject.next(formattedUsers);
       },
       error: (err) => console.error("Failed to load users for task assignment", err)
     });
+  }
+
+  private formatName(name: string): string {
+    if (!name) return 'Unknown';
+    if (name.includes('@')) {
+      const localPart = name.split('@')[0];
+      return localPart
+        .split('.')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+    }
+    return name;
   }
   
   private fetchTasks() {
@@ -207,7 +223,7 @@ export class TaskService {
       priority: newTask.priority || 'Low',
       due_date: newTask.due_date || new Date().toISOString(),
       project_id: newTask.project_id || this.projectService.getSelectedProjectId(),
-      assignee_ids: newTask.assignee_ids && newTask.assignee_ids.length ? newTask.assignee_ids : ['usr_1'],
+      assignee_ids: newTask.assignee_ids && newTask.assignee_ids.length ? newTask.assignee_ids : [],
       ...newTask
     };
     

@@ -1,0 +1,156 @@
+
+<div class="performance-container">
+  <div class="perf-top-header">
+    <div style="display: flex; align-items: center;">
+      <button mat-icon-button routerLink="/dashboard" style="margin-right: 16px;" title="Back to Dashboard">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="perf-title-group">
+        <mat-icon class="calendar-icon">calendar_month</mat-icon>
+        <h1>By period</h1>
+      </div>
+    </div>
+    
+    <div class="period-selector">
+      <label>Period</label>
+      <select [(ngModel)]="selectedPeriod" (ngModelChange)="onPeriodChange()" class="period-select">
+        @for (opt of periodOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="status-section">
+    <h2>By status - {{ currentMonthName }}</h2>
+    <p class="subtitle">To do, in progress, testing, and completed - for tasks with any activity in the selected period (current list status).</p>
+    
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-number todo">{{ statCounts.todo }}</div>
+        <div class="stat-label">To Do</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number in-progress">{{ statCounts.inProgress }}</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number testing">{{ statCounts.testing }}</div>
+        <div class="stat-label">Testing</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number completed">{{ statCounts.completed }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-header">
+      <h2>Completions by day</h2>
+      <p>How many tasks moved to completed on each day</p>
+    </div>
+    
+    <div class="chart-wrapper">
+      <div class="y-axis">
+        @for (label of yAxisLabels; track label) {
+          <div class="y-label">{{ label }}</div>
+        }
+      </div>
+      
+      <div class="chart-scroll-wrapper"><div class="chart-area">
+        <!-- Horizontal Grid Lines -->
+        <div class="grid-lines">
+          @for (label of yAxisLabels; track label) {
+            <div class="grid-line"></div>
+          }
+        </div>
+        
+        <!-- Bars -->
+        <div class="bars-container">
+          @for (dayData of chartDays; track dayData.day) {
+            <div class="bar-column" 
+                 (mouseenter)="hoveredDay = dayData" 
+                 (mouseleave)="hoveredDay = null">
+                 
+              <div class="bar-fill-area">
+                <div class="bar" [style.height.%]="(dayData.count / maxChartValue) * 100"></div>
+              </div>
+              <div class="x-label">{{ dayData.day }}</div>
+              
+              <!-- Tooltip -->
+              @if (hoveredDay === dayData) {
+                <div class="chart-tooltip">
+                  <div class="tt-date">{{ dayData.dateStr }}</div>
+                  <div class="tt-count">Completions : {{ dayData.count }}</div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keep the daily breakdown at the bottom so user doesn't lose their check-in history -->
+  <div class="detailed-breakdown-section">
+    <h2>Detailed Breakdown (All Time)</h2>
+    <div class="perf-timeline">
+      @for (monthGroup of performanceByMonth; track monthGroup.monthName) {
+        <div class="month-group">
+          <h3 class="month-header">{{ monthGroup.monthName }}</h3>
+          
+          @for (day of monthGroup.days; track day.date) {
+            <div class="perf-day-card">
+              <div class="perf-day-header">
+                <div class="date-info">
+                  <h2>{{ day.date | date:'mediumDate' }}</h2>
+                  <span class="task-count-badge">{{ day.tasks.length }} tasks</span>
+                </div>
+                <div class="attendance-info">
+                  @if (day.attendance) {
+                    <div class="attendance-times">
+                      <div class="time-block in">
+                        <span class="label">Check In</span>
+                        <span class="time">{{ day.attendance.checkIn || '--' }}</span>
+                      </div>
+                      <div class="time-block out">
+                        <span class="label">Check Out</span>
+                        <span class="time">{{ day.attendance.checkOut || '--' }}</span>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="no-attendance">No attendance record</div>
+                  }
+                </div>
+              </div>
+              <div class="perf-tasks-list">
+                @for (task of day.tasks; track task.id) {
+                  <div class="task-item" [class.completed]="task.status === 'Completed'">
+                    <div class="task-icon">
+                      @if (task.status === 'Completed') {
+                        <mat-icon>check_circle</mat-icon>
+                      } @else {
+                        <mat-icon>radio_button_unchecked</mat-icon>
+                      }
+                    </div>
+                    <div class="task-details">
+                      <h3>{{ task.title }}</h3>
+                      <span class="task-status">{{ task.status }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+
+
+
+

@@ -37,7 +37,7 @@ export class LoginComponent {
     }).subscribe({
       next: (res) => {
         this.authService.login(res.data.token);
-        this.router.navigate(['/board']);
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         this.errorMessage = err.error?.error || 'Login failed';

@@ -23,14 +23,14 @@
 
 .signup-header h2 {
   margin: 0 0 8px 0;
-  color: #1e293b;
+  color: #182b4d;
   font-size: 1.75rem;
   font-weight: 700;
 }
 
 .signup-header p {
   margin: 0;
-  color: #64748b;
+  color: #6b778c;
   font-size: 0.95rem;
 }
 
@@ -48,8 +48,8 @@
 
 .form-group label {
   font-size: 0.875rem;
-  font-weight: 600;
-  color: #475569;
+  font-weight: 700;
+  color: #182b4d;
 }
 
 .form-group input {
@@ -75,37 +75,41 @@
 .btn-submit {
   width: 100%;
   padding: 12px;
-  background-color: #2563eb;
+  background-color: #3f51b5;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s;
+  box-shadow: 0 2px 4px rgba(63, 81, 181, 0.2);
+  transition: all 0.2s ease;
   margin-top: 8px;
 }
 
 .btn-submit:hover:not(:disabled) {
-  background-color: #1d4ed8;
+  background-color: #303f9f;
+  box-shadow: 0 4px 8px rgba(63, 81, 181, 0.3);
+  transform: translateY(-1px);
 }
 
 .btn-submit:disabled {
   background-color: #94a3b8;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .login-link {
   text-align: center;
   margin-top: 8px;
   font-size: 0.9rem;
-  color: #64748b;
+  color: #6b778c;
 }
 
 .login-link a {
-  color: #2563eb;
+  color: #3f51b5;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .login-link a:hover {
@@ -127,7 +131,7 @@
   color: #065f46;
   border-radius: 8px;
   text-align: center;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .password-checklist {
@@ -143,7 +147,7 @@
 
 .check-item {
   font-size: 0.825rem;
-  color: #64748b;
+  color: #6b778c;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -157,7 +161,7 @@
 
 .check-item.met {
   color: #10b981;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .password-input-wrapper {
@@ -180,7 +184,7 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  color: #64748b;
+  color: #6b778c;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,3 +194,13 @@
 .btn-view-password:hover {
   color: #3b82f6;
 }
+
+.name-row {
+  display: flex;
+  gap: 16px;
+}
+.name-row .form-group {
+  flex: 1;
+}
+
+

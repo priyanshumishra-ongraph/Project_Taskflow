@@ -1,7 +1,7 @@
-import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { Component, inject, TemplateRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ProjectService, Project } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 import { TaskService } from '../../services/task.service';
@@ -19,7 +19,7 @@ import { MatSelectModule } from '@angular/material/select';
   selector: 'app-sidebar',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MatMenuModule, MatIconModule, MatButtonModule,
+    CommonModule, FormsModule, RouterModule, MatMenuModule, MatIconModule, MatButtonModule,
     MatDialogModule, MatSnackBarModule, MatFormFieldModule, MatInputModule, MatSelectModule
   ],
   templateUrl: './sidebar.component.html',
@@ -50,7 +50,17 @@ export class SidebarComponent {
   
   projects$ = this.projectService.projects$;
   selectedProjectId$ = this.projectService.selectedProjectId$;
-  isCollapsed = false;
+  isCollapsed = window.innerWidth <= 768;
+  wasMobile = window.innerWidth <= 768;
+
+  @HostListener('window:resize')
+  onResize() {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile !== this.wasMobile) {
+      this.isCollapsed = isMobile;
+      this.wasMobile = isMobile;
+    }
+  }
   searchQuery = '';
 
   get filteredProjects$() {
@@ -61,10 +71,23 @@ export class SidebarComponent {
 
   selectProject(id: string) {
     this.projectService.setSelectedProject(id);
+    if (!this.isInAdminRoute) {
+      this.router.navigate(['/board']);
+    }
+  }
+
+  clearProjectSelection() {
+    this.projectService.setSelectedProject('');
   }
 
   toggleSidebar() {
     this.isCollapsed = !this.isCollapsed;
+  }
+
+  closeOnMobile() {
+    if (window.innerWidth <= 768) {
+      this.isCollapsed = true;
+    }
   }
 
   addNewProject() {
@@ -77,10 +100,12 @@ export class SidebarComponent {
 
   confirmCreateProject() {
     if (this.newProjectName && this.newProjectName.trim()) {
-      this.projectService.addProject(this.newProjectName.trim(), this.newProjectOwnerId).subscribe({
+      let formattedName = this.newProjectName.trim();
+      formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
+      this.projectService.addProject(formattedName, this.newProjectOwnerId).subscribe({
         next: () => {
           this.dialog.closeAll();
-          this.snackBar.open(`Project "${this.newProjectName.trim()}" created successfully!`, 'Close', {
+          this.snackBar.open(`Project "${formattedName}" created successfully!`, 'Close', {
             duration: 3000,
             panelClass: ['success-snackbar']
           });
@@ -102,7 +127,9 @@ export class SidebarComponent {
 
   confirmEditProject() {
     if (this.activeProject && this.editProjectName.trim() && this.editProjectName.trim() !== this.activeProject.name) {
-      this.projectService.updateProject(this.activeProject.id, { name: this.editProjectName.trim() }).subscribe({
+      let formattedName = this.editProjectName.trim();
+      formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
+      this.projectService.updateProject(this.activeProject.id, { name: formattedName }).subscribe({
         next: () => {
           this.dialog.closeAll();
           this.snackBar.open('Project renamed successfully!', 'Close', { duration: 3000, panelClass: ['success-snackbar'] });

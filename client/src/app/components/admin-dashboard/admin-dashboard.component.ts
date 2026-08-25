@@ -40,6 +40,25 @@ export class AdminDashboardComponent implements OnInit {
   activeTab: 'dashboard' | 'users' | 'projects' | 'assign' = 'dashboard';
   usersList: any[] = [];
   private http = inject(HttpClient);
+  minDate!: string;
+
+  // ── Task Progress Overview Pagination ──
+  taskPage = 1;
+  readonly taskPageSize = 5;
+
+  getPaginatedTasks(allTasks: any[]): any[] {
+    const start = (this.taskPage - 1) * this.taskPageSize;
+    return allTasks.slice(start, start + this.taskPageSize);
+  }
+
+  getTaskTotalPages(allTasks: any[]): number {
+    return Math.ceil(allTasks.length / this.taskPageSize) || 1;
+  }
+
+  taskNextPage(total: number) { if (this.taskPage < total) this.taskPage++; }
+  taskPrevPage() { if (this.taskPage > 1) this.taskPage--; }
+  taskGoToPage(page: number, total: number) { if (page >= 1 && page <= total) this.taskPage = page; }
+  // ───────────────────────────────────────
 
   constructor() {
     this.taskForm = this.fb.group({
@@ -68,6 +87,9 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const today = new Date();
+    this.minDate = today.toISOString().split('T')[0];
+
     // Ensure projects are loaded
     this.projectService.loadProjects();
     this.loadUsers();
