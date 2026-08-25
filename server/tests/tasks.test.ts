@@ -121,10 +121,10 @@ describe('Tasks API', () => {
       const res = await request(app)
         .put(`/api/tasks/${task._id}`)
         .set('Authorization', `Bearer ${authToken}`)
-        .send({ status: 'Done' });
+        .send({ status: 'Completed' });
 
       expect(res.status).toBe(200);
-      expect(res.body.data.status).toBe('Done');
+      expect(res.body.data.status).toBe('Completed');
     });
 
     it('returns 400 for a malformed MongoDB ObjectId', async () => {
@@ -150,7 +150,7 @@ describe('Tasks API', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).toBe(200);
-      const deletedTask = await Task.findById(taskId);
+      const deletedTask = await (Task as mongoose.Model<any>).findById(taskId);
       expect(deletedTask).toBeNull();
     });
 
@@ -165,3 +165,4 @@ describe('Tasks API', () => {
     });
   });
 });
+

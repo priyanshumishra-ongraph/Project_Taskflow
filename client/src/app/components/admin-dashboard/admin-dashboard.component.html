@@ -93,7 +93,15 @@
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Password</mat-label>
-            <input matInput type="password" formControlName="password" placeholder="Min 6 chars">
+            <input matInput type="password" formControlName="password" placeholder="Min 12 chars, upper, lower, num, special">
+            <mat-error *ngIf="userForm.get('password')?.errors as errs">
+              {{ errs['required'] ? 'Password is required.' : 
+                 errs['minlength'] ? 'Must be at least 12 characters.' :
+                 errs['missingUppercase'] ? 'Missing an uppercase letter.' :
+                 errs['missingLowercase'] ? 'Missing a lowercase letter.' :
+                 errs['missingNumber'] ? 'Missing a number.' :
+                 errs['missingSpecialChar'] ? 'Missing a special character.' : '' }}
+            </mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline">
             <mat-label>Role</mat-label>

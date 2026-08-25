@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
+import { passwordStrengthValidator } from '../../shared/validators/password.validator';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -81,7 +82,7 @@ export class AdminDashboardComponent implements OnInit {
     this.userForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, passwordStrengthValidator]],
       role: ['Member', Validators.required]
     });
   }

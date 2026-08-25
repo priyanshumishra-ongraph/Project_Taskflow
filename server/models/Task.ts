@@ -100,5 +100,5 @@ const TaskSchema = new Schema<ITask>(
   }
 );
 
-export default mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
+export default (mongoose.models.Task as mongoose.Model<ITask>) || mongoose.model<ITask>('Task', TaskSchema);
 
