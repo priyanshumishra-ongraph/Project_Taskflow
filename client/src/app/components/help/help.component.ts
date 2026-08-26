@@ -36,7 +36,7 @@ export class HelpComponent implements OnInit, OnDestroy {
           "name": "How do I move tasks across columns?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "TaskFlow features a fully interactive Kanban board. Simply click and hold any task card, drag it to the desired column (To Do, In Progress, Testing, or Completed), and release it. The task's progress and your dashboard KPIs will update automatically."
+            "text": "Worksy features a fully interactive Kanban board. Simply click and hold any task card, drag it to the desired column (To Do, In Progress, Testing, or Completed), and release it. The task's progress and your dashboard KPIs will update automatically."
           }
         },
         {

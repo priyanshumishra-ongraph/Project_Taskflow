@@ -1,4 +1,4 @@
-# TaskFlow: Comprehensive Design Document
+# Worksy: Comprehensive Design Document
 
 ## 1. Design System & Aesthetics
 *   **Typography:** Primary font: *Inter* (clean, modern sans-serif). Secondary font: *Roboto Mono* for code blocks or time logs.
@@ -25,7 +25,7 @@
 ### Screen 1: Dashboard & Kanban Board (Desktop)
 ```text
 +-----------------------------------------------------------------------------+
-|  [Logo] TaskFlow    Search (Ctrl+K)...   [Moon/Sun Toggle] (Bell) (Avatar)  |
+|  [Logo] Worksy    Search (Ctrl+K)...   [Moon/Sun Toggle] (Bell) (Avatar)  |
 +-----------------------------------------------------------------------------+
 |  NAVIGATION       |  Project: Alpha Re-design                  [Share] [...]|
 |                   |  Filter: [All v]  Sort: [Due Date v]      [+ New Task]  |
@@ -73,7 +73,7 @@
 ### Screen 3: Mobile View (Responsive)
 ```text
 +---------------------+
-| (Menu) TaskFlow [☼] |
+| (Menu) Worksy [☼] |
 +---------------------+
 | Project: Alpha      |
 | [To Do v]           |

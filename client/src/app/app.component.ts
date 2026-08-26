@@ -17,7 +17,7 @@ import { MatDividerModule } from '@angular/material/divider';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'TaskFlow';
+  title = 'Worksy';
   authService = inject(AuthService);
   showProfileMenu = false;
 

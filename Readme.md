@@ -1,6 +1,6 @@
-# TaskFlow - Full-Stack Task Management Application
+# Worksy - Full-Stack Task Management Application
 
-TaskFlow is a modern, responsive, full-stack Task Management application designed for teams to organize projects, assign tasks, and track progress efficiently. It features a reactive Kanban board, robust role-based access control (RBAC), and real-time dashboard analytics.
+Worksy is a modern, responsive, full-stack Task Management application designed for teams to organize projects, assign tasks, and track progress efficiently. It features a reactive Kanban board, robust role-based access control (RBAC), and real-time dashboard analytics.
 
 ---
 
@@ -167,11 +167,11 @@ npm test
 
 ---
 
-# TaskFlow (Task Manager) - Project Roadmap
+# Worksy (Task Manager) - Project Roadmap
 
 ## Phase 1 � Foundation
 
-*   **Day 1:** Choose the app: "TaskFlow" (a task manager). Write a feature list, user stories, and acceptance criteria.
+*   **Day 1:** Choose the app: "Worksy" (a task manager). Write a feature list, user stories, and acceptance criteria.
     *   *Deliverable:* features.md + user stories
 *   **Day 2:** Sketch the screens (login, task board, task form). List entities & relationships: User, Project, Task.
     *   *Deliverable:* UI sketches + entity list

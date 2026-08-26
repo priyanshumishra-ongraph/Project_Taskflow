@@ -10,7 +10,16 @@ import { requireAuth } from './middleware/auth';
 // Used by tests so they can manage the DB connection themselves.
 const app = express();
 
-app.use(cors());
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:4200')
+  .split(',')
+  .map((origin) => origin.trim());
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
