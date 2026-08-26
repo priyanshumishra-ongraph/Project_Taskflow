@@ -1,4 +1,4 @@
-# Worksy: Task Manager
+# TaskFlow: Task Manager
 
 ## 1. Feature List
 
@@ -75,13 +75,13 @@
 
 ### User Story 6: Calendar Integration
 **As a** user,
-**I want to** sync my Worksy deadlines with my Google Calendar,
+**I want to** sync my TaskFlow deadlines with my Google Calendar,
 **So that** I can view my meetings and tasks in one unified schedule.
 
 **Acceptance Criteria:**
 *   **Given** the user is in the settings menu, **When** they click "Connect Google Calendar", **Then** they are prompted with an OAuth consent screen.
-*   **Given** the calendar is synced, **When** a task with a due date and time is created in Worksy, **Then** a corresponding event appears on their Google Calendar.
-*   **Given** a task date changes in Worksy, **When** the update is saved, **Then** the synced calendar event automatically shifts to the new date/time.
+*   **Given** the calendar is synced, **When** a task with a due date and time is created in TaskFlow, **Then** a corresponding event appears on their Google Calendar.
+*   **Given** a task date changes in TaskFlow, **When** the update is saved, **Then** the synced calendar event automatically shifts to the new date/time.
 
 ### User Story 7: Customization (Dark Mode)
 **As a** user,

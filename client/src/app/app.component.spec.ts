@@ -32,16 +32,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'Worksy' title`, () => {
+  it(`should have the 'TaskFlow' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('Worksy');
+    expect(app.title).toEqual('TaskFlow');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Worksy');
+    expect(compiled.querySelector('h1')?.textContent).toContain('TaskFlow');
   });
 });
