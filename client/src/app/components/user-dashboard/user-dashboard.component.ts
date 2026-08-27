@@ -139,7 +139,9 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
   }
 
   private restoreAttendanceState() {
-    const saved = localStorage.getItem('attendance_state');
+    const user = this.authService.currentUser();
+    if (!user) return;
+    const saved = localStorage.getItem(`attendance_state_${user.id}`);
     if (saved) {
       const state = JSON.parse(saved);
       if (state.isCheckedIn && state.checkInTimestamp) {
@@ -206,7 +208,9 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
   }
 
   private saveAttendanceState() {
-    localStorage.setItem('attendance_state', JSON.stringify({
+    const user = this.authService.currentUser();
+    if (!user) return;
+    localStorage.setItem(`attendance_state_${user.id}`, JSON.stringify({
       isCheckedIn: this.isCheckedIn,
       checkInTimestamp: this.checkInTimestamp,
       checkInTime: this.checkInTime,
@@ -217,8 +221,11 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
   }
 
   private saveToHistory(event: 'checkIn' | 'checkOut', timestamp: Date) {
+    const user = this.authService.currentUser();
+    if (!user) return;
+    const historyKey = `attendance_history_${user.id}`;
     const dateKey = timestamp.toLocaleDateString();
-    const historyJson = localStorage.getItem('attendance_history');
+    const historyJson = localStorage.getItem(historyKey);
     let history: any = historyJson ? JSON.parse(historyJson) : {};
     if (!history[dateKey]) history[dateKey] = { checkIn: null, checkOut: null, totalSeconds: 0 };
     if (event === 'checkIn') {
@@ -227,7 +234,7 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
       history[dateKey].checkOut = timestamp.toLocaleTimeString();
       history[dateKey].totalSeconds = this.elapsedSeconds;
     }
-    localStorage.setItem('attendance_history', JSON.stringify(history));
+    localStorage.setItem(historyKey, JSON.stringify(history));
   }
 
   updateAttendanceStatus() {
