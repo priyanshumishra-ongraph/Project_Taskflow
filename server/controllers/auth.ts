@@ -3,7 +3,11 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
+if (!process.env.JWT_SECRET) {
+  console.error("FATAL ERROR: JWT_SECRET environment variable is not defined.");
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
