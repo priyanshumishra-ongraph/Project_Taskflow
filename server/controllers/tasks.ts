@@ -56,9 +56,17 @@ export const updateTask = async (req: Request, res: Response, next: NextFunction
       filter = { _id: id, $or: [{ creator_id: user.id }, { assignee_ids: user.id }] };
     }
 
+    const allowedFields = ['title', 'description', 'status', 'priority', 'due_date', 'project_id', 'assignee_ids', 'subtasks', 'comments'];
+    const updateData: any = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    }
+
     const updatedTask = await (Task as any).findOneAndUpdate(
       filter,
-      { $set: req.body as any },
+      { $set: updateData },
       { returnDocument: 'after', runValidators: true }
     );
     

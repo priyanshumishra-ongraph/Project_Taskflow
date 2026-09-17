@@ -54,9 +54,17 @@ export const updateProject = async (req: Request, res: Response, next: NextFunct
       }
     }
 
+    const allowedFields = ['name', 'description', 'status', 'owner_id'];
+    const updateData: any = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    }
+
     const updatedProject = await (Project as any).findByIdAndUpdate(
       id,
-      { $set: req.body as any },
+      { $set: updateData },
       { returnDocument: 'after', runValidators: true }
     );
     
