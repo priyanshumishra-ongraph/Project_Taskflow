@@ -164,5 +164,62 @@ describe('Tasks API', () => {
       expect(res.status).toBe(404);
     });
   });
+  describe('Authorization Rules', () => {
+    it('allows Admin to update and delete any task', async () => {
+      // Create task without creator (so it belongs to no one technically)
+      const task = await Task.create({ title: 'Admin Target', project_id: projectId });
+      
+      const updateRes = await request(app)
+        .put(`/api/tasks/${task._id}`)
+        .set('Authorization', `Bearer ${authToken}`) // Admin
+        .send({ title: 'Updated by Admin' });
+      expect(updateRes.status).toBe(200);
+
+      const delRes = await request(app)
+        .delete(`/api/tasks/${task._id}`)
+        .set('Authorization', `Bearer ${authToken}`); // Admin
+      expect(delRes.status).toBe(200);
+    });
+
+    it('prevents Member from updating or deleting unassigned tasks', async () => {
+      // Register a second user (becomes Member)
+      const memberRes = await request(app).post('/api/auth/register')
+        .send({ name: 'Member', email: 'member@test.com', password: 'password123' });
+      const memberToken = memberRes.body.data.token;
+
+      const task = await Task.create({ title: 'Not Mine', project_id: projectId });
+      
+      const updateRes = await request(app)
+        .put(`/api/tasks/${task._id}`)
+        .set('Authorization', `Bearer ${memberToken}`)
+        .send({ title: 'Sneaky Update' });
+      expect(updateRes.status).toBe(404); // 404 unauthorized
+
+      const delRes = await request(app)
+        .delete(`/api/tasks/${task._id}`)
+        .set('Authorization', `Bearer ${memberToken}`);
+      expect(delRes.status).toBe(404);
+    });
+
+    it('allows Member to update but not delete assigned task', async () => {
+      const memberRes = await request(app).post('/api/auth/register')
+        .send({ name: 'Member2', email: 'member2@test.com', password: 'password123' });
+      const memberToken = memberRes.body.data.token;
+      const memberId = memberRes.body.data.user.id;
+
+      const task = await Task.create({ title: 'Assigned to me', project_id: projectId, assignee_ids: [memberId] });
+      
+      const updateRes = await request(app)
+        .put(`/api/tasks/${task._id}`)
+        .set('Authorization', `Bearer ${memberToken}`)
+        .send({ title: 'Updated by Assignee' });
+      expect(updateRes.status).toBe(200);
+
+      const delRes = await request(app)
+        .delete(`/api/tasks/${task._id}`)
+        .set('Authorization', `Bearer ${memberToken}`);
+      expect(delRes.status).toBe(404); // Not creator, so can't delete
+    });
+  });
 });
 
