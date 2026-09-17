@@ -3,7 +3,12 @@ import Task from '../models/Task';
 
 export const getTasks = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tasks = await Task.find();
+    const user = (req as any).user;
+    let filter = {};
+    if (user && user.role !== 'Admin') {
+      filter = { $or: [{ creator_id: user.id }, { assignee_ids: user.id }] };
+    }
+    const tasks = await Task.find(filter);
     const formattedTasks = tasks.map(t => {
       const obj = t.toObject();
       return { ...obj, id: obj._id };
@@ -44,15 +49,21 @@ export const updateTask = async (req: Request, res: Response, next: NextFunction
   console.log('UPDATING TASK:', req.params.id, req.body);
   try {
     const { id } = req.params;
+    const user = (req as any).user;
 
-    const updatedTask = await (Task as any).findByIdAndUpdate(
-      id,
+    let filter: any = { _id: id };
+    if (user && user.role !== 'Admin') {
+      filter = { _id: id, $or: [{ creator_id: user.id }, { assignee_ids: user.id }] };
+    }
+
+    const updatedTask = await (Task as any).findOneAndUpdate(
+      filter,
       { $set: req.body as any },
       { returnDocument: 'after', runValidators: true }
     );
     
     if (!updatedTask) {
-      return res.status(404).json({ error: 'Task not found' });
+      return res.status(404).json({ error: 'Task not found or unauthorized' });
     }
 
     const obj = updatedTask.toObject();
@@ -65,10 +76,16 @@ export const updateTask = async (req: Request, res: Response, next: NextFunction
 export const deleteTask = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+    const user = (req as any).user;
+
+    let filter: any = { _id: id };
+    if (user && user.role !== 'Admin') {
+      filter = { _id: id, $or: [{ creator_id: user.id }, { assignee_ids: user.id }] };
+    }
     
-    const deletedTask = await (Task as any).findByIdAndDelete(id);
+    const deletedTask = await (Task as any).findOneAndDelete(filter);
     if (!deletedTask) {
-      return res.status(404).json({ error: 'Task not found' });
+      return res.status(404).json({ error: 'Task not found or unauthorized' });
     }
 
     res.status(200).json({ data: { message: 'Task deleted successfully' } });
@@ -76,6 +93,5 @@ export const deleteTask = async (req: Request, res: Response, next: NextFunction
     console.error('ERROR UPDATING TASK:', error); next(error);
   }
 };
-
 
 

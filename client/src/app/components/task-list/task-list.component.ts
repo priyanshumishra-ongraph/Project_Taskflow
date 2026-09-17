@@ -92,7 +92,7 @@ export class TaskListComponent implements OnInit, OnDestroy {
     if (!user) return false;
     if (this.authService.isAdmin()) return true;
     if (!task) return true;
-    return task.creator_id === user.id;
+    return task.creator_id === user.id || (task.assignee_ids && task.assignee_ids.includes(user.id));
   }
 
   taskFormData: any = {
