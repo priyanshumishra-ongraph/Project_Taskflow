@@ -21,7 +21,7 @@ export const createProject = async (req: Request, res: Response, next: NextFunct
     
     // Validation is handled by express-validator middleware
 
-    const existingProject = await (Project as any).findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
+    const existingProject = await (Project as any).findOne({ name }).collation({ locale: 'en', strength: 2 });
     if (existingProject) {
       return res.status(400).json({ error: 'A project with this name already exists' });
     }
@@ -46,9 +46,9 @@ export const updateProject = async (req: Request, res: Response, next: NextFunct
 
     if (req.body.name) {
       const existingProject = await (Project as any).findOne({ 
-        name: { $regex: new RegExp(`^${req.body.name}$`, 'i') },
+        name: req.body.name,
         _id: { $ne: id }
-      });
+      }).collation({ locale: 'en', strength: 2 });
       if (existingProject) {
         return res.status(400).json({ error: 'A project with this name already exists' });
       }
