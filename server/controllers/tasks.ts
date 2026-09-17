@@ -80,7 +80,7 @@ export const deleteTask = async (req: Request, res: Response, next: NextFunction
 
     let filter: any = { _id: id };
     if (user && user.role !== 'Admin') {
-      filter = { _id: id, $or: [{ creator_id: user.id }, { assignee_ids: user.id }] };
+      filter = { _id: id, creator_id: user.id };
     }
     
     const deletedTask = await (Task as any).findOneAndDelete(filter);

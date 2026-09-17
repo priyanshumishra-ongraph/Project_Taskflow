@@ -216,13 +216,14 @@ export class TaskService {
   }
 
   addTask(newTask: Partial<Task>): Observable<Task> {
+    const fallbackProjectId = this.projectService.getSelectedProjectId();
     const task = {
       title: newTask.title || 'Untitled Task',
       description: newTask.description || '',
       status: newTask.status || 'To Do',
       priority: newTask.priority || 'Low',
       due_date: newTask.due_date || new Date().toISOString(),
-      project_id: newTask.project_id || this.projectService.getSelectedProjectId(),
+      project_id: newTask.project_id || fallbackProjectId || undefined,
       assignee_ids: newTask.assignee_ids && newTask.assignee_ids.length ? newTask.assignee_ids : [],
       ...newTask
     };

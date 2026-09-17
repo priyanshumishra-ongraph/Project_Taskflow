@@ -95,6 +95,13 @@ export class TaskListComponent implements OnInit, OnDestroy {
     return task.creator_id === user.id || (task.assignee_ids && task.assignee_ids.includes(user.id));
   }
 
+  canDeleteTask(task: any): boolean {
+    const user = this.authService.currentUser();
+    if (!user) return false;
+    if (this.authService.isAdmin()) return true;
+    return task?.creator_id === user.id;
+  }
+
   taskFormData: any = {
     title: '',
     priority: 'Low',
@@ -202,11 +209,17 @@ export class TaskListComponent implements OnInit, OnDestroy {
   closeModal() { this.showModal = false; }
 
   onDelete(id: string) {
-    if (confirm('Are you sure you want to delete this task?')) {
+    const snackBarRef = this.snackBar.open('Are you sure you want to delete this task?', 'Delete', {
+      duration: 5000,
+      panelClass: ['warn-snackbar']
+    });
+
+    snackBarRef.onAction().subscribe(() => {
       this.taskService.deleteTask(id).subscribe({
-        error: (err) => alert('Failed to delete task: ' + (err.error?.error || err.message))
+        next: () => this.snackBar.open('Task deleted successfully', 'Close', { duration: 3000 }),
+        error: (err) => this.snackBar.open('Failed to delete task: ' + (err.error?.error || err.message), 'Close', { duration: 3000, panelClass: ['error-snackbar'] })
       });
-    }
+    });
   }
 
   updateTaskStatus(task: Task, newStatus: string) {

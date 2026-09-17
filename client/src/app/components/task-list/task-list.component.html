@@ -16,6 +16,7 @@
         cdkDrag
         [cdkDragData]="task"
         [task]="task"
+        [canDelete]="canDeleteTask(task)"
         (edit)="openEditModal(task)"
         (delete)="onDelete(task.id)">
       </app-task-card>

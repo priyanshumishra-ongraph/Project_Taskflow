@@ -32,6 +32,9 @@ export class ProjectService {
     this.http.get<{data: Project[]}>(this.apiUrl).subscribe({
       next: (res) => {
         this.projectsSubject.next(res.data);
+        if (res.data.length > 0 && !this.selectedProjectIdSubject.value) {
+          this.selectedProjectIdSubject.next(res.data[0].id);
+        }
       },
       error: (err) => console.error("Failed to load projects:", err)
     });

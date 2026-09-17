@@ -18,6 +18,7 @@ import { MatDividerModule } from '@angular/material/divider';
 })
 export class TaskCardComponent {
   @Input({ required: true }) task!: Task;
+  @Input() canDelete: boolean = false;
   
   @Output() edit = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();

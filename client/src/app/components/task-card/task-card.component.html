@@ -29,7 +29,7 @@
       <button mat-icon-button (click)="onEdit()" title="Edit Task" style="width: 32px; height: 32px; padding: 4px;">
         <mat-icon style="font-size: 18px; width: 18px; height: 18px;">edit</mat-icon>
       </button>
-      <button mat-icon-button color="warn" (click)="onDelete()" title="Delete Task" style="width: 32px; height: 32px; padding: 4px;">
+      <button [disabled]="!canDelete" mat-icon-button color="warn" (click)="onDelete()" title="Delete Task" style="width: 32px; height: 32px; padding: 4px;">
         <mat-icon style="font-size: 18px; width: 18px; height: 18px;">delete</mat-icon>
       </button>
       <span class="priority {{ task.priority.toLowerCase() }}">{{ task.priority }}</span>
